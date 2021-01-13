@@ -25,6 +25,7 @@ package eu.warfaremc.prestige
 import com.google.common.cache.Cache
 import com.google.common.cache.CacheBuilder
 import eu.warfaremc.prestige.api.PrestigeAPI
+import eu.warfaremc.prestige.listener.GUI
 import eu.warfaremc.prestige.listener.PhaseListener
 import eu.warfaremc.prestige.listener.PlayerListener
 import eu.warfaremc.prestige.model.PrestigeAPImpl
@@ -123,9 +124,11 @@ class PrestigeAddons : BentoboxAddon(), CoroutineScope by MainScope() {
         logger.warn { "Using primary database: '${database.url}, productName: ${database.vendor}, " +
                 "productVersion: ${database.version}, logger: $logger, dialect: ${database.dialect}'" }
 
-        // TODO: GUI
+
+
         registerListener(PhaseListener ())
         registerListener(PlayerListener())
+        registerListener(GUI())
 
     }
 

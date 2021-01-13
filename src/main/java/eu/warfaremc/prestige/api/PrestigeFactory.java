@@ -20,39 +20,46 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package eu.warfaremc.prestige.listener
+package eu.warfaremc.prestige.api;
 
-import eu.warfaremc.prestige.addons
-import org.bukkit.Bukkit
-import org.bukkit.Material
-import org.bukkit.entity.Player
-import org.bukkit.event.EventHandler
-import org.bukkit.event.Listener
-import org.bukkit.event.inventory.InventoryClickEvent
-import world.bentobox.bentobox.database.objects.Island
+import org.bukkit.Material;
+import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-class GUI : Listener {
-    companion object {
-        fun openParticlesMenu(player: Player?) {
-            try {
-                val islands = hashMapOf<Island, Int>()
-                TODO("Finish this @WattMann")
-            } catch (exception: Exception) {
-                exception.printStackTrace()
-            }
-        }
-    }
+import java.util.UUID;
 
-    @EventHandler
-    fun InventoryClickEvent.on() {
-        if (view.title == "§b§l(!) §bOneBlock Top") {
-            isCancelled = true
-            if (currentItem == null)
-                return
-            if (currentItem!!.type == Material.AIR)
-                return
-            if (currentItem!!.type.toString().contains("stained_glass_pane"))
-                addons.server.dispatchCommand(Bukkit.getConsoleSender(), "ob warp " + currentItem?.itemMeta?.displayName?.replace("§b§l(!) §b", ""))
-        }
+/**
+* The Prestige Factory API used for creating items
+*/
+public interface PrestigeFactory {
+
+    ItemStack create();
+
+    ItemStack create(@NotNull Material material);
+    
+    ItemStack create(@NotNull Material material, int ammount);
+
+    ItemStack create(@NotNull Material material, int ammount, @Nullable String ... lore);
+
+    ItemStack create(@NotNull Material material, @Nullable String displayName, int ammount);
+    
+    ItemStack create(@NotNull Material material, @Nullable String displayName, int ammount, @Nullable String ... lore);
+
+    interface SkullFactory {
+
+        ItemStack createSkull();
+
+        ItemStack createSkull(int ammount);
+
+        ItemStack createSkull(@Nullable UUID uniqueId);
+
+        // TODO
+
+        @Nullable
+        ItemStack fromBase64(@NotNull String base64);
+
+        ItemStack fromBase64(@NotNull String base64, @Nullable ItemStack itemStack);
+
     }
 }

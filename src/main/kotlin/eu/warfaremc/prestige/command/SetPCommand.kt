@@ -20,39 +20,34 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package eu.warfaremc.prestige.listener
+package eu.warfaremc.prestige.command
 
 import eu.warfaremc.prestige.addons
-import org.bukkit.Bukkit
-import org.bukkit.Material
-import org.bukkit.entity.Player
-import org.bukkit.event.EventHandler
-import org.bukkit.event.Listener
-import org.bukkit.event.inventory.InventoryClickEvent
-import world.bentobox.bentobox.database.objects.Island
+import eu.warfaremc.prestige.api
+import world.bentobox.bentobox.api.addons.Addon
+import world.bentobox.bentobox.api.commands.CompositeCommand
+import world.bentobox.bentobox.api.user.User
 
-class GUI : Listener {
-    companion object {
-        fun openParticlesMenu(player: Player?) {
-            try {
-                val islands = hashMapOf<Island, Int>()
-                TODO("Finish this @WattMann")
-            } catch (exception: Exception) {
-                exception.printStackTrace()
-            }
+class SetPCommand(addon: Addon, parent: CompositeCommand, label: String) : CompositeCommand(addon, parent, label) {
+    override fun execute(user: User?, label: String?, args: MutableList<String>?): Boolean {
+        if (user == null || args.isNullOrEmpty())
+            return false
+        val player = addons.server.getPlayer(args[0]) ?: return false
+        var number = 0
+        try {
+            number = Integer.parseInt(args[1])
+        } catch (exception: NumberFormatException) {
+            user.sendMessage("Expected number, got string")
+            return false
         }
+        api.setPrestige(player.uniqueId, number)
+        user.sendMessage("[WPrestige] Prestige set to $number for user: " + player.displayName)
+        return true
     }
 
-    @EventHandler
-    fun InventoryClickEvent.on() {
-        if (view.title == "§b§l(!) §bOneBlock Top") {
-            isCancelled = true
-            if (currentItem == null)
-                return
-            if (currentItem!!.type == Material.AIR)
-                return
-            if (currentItem!!.type.toString().contains("stained_glass_pane"))
-                addons.server.dispatchCommand(Bukkit.getConsoleSender(), "ob warp " + currentItem?.itemMeta?.displayName?.replace("§b§l(!) §b", ""))
-        }
+    override fun setup() {
+        isOnlyPlayer = true
+        description  = "Sets prestige data"
+        permission   = "wp.admin.set"
     }
 }

@@ -20,35 +20,20 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package eu.warfaremc.prestige.model
+package eu.warfaremc.prestige.miscellanneous
 
-import eu.warfaremc.prestige.addons
-import eu.warfaremc.prestige.api
-import eu.warfaremc.prestige.api.PrestigeAPI
-import eu.warfaremc.prestige.miscellanneous.toRoman
-import me.clip.placeholderapi.expansion.PlaceholderExpansion
-import org.bukkit.entity.Player
-
-object PrestigePlaceholder : PlaceholderExpansion() {
-
-    val prestigeAPI: PrestigeAPI by lazy { api }
-
-    override fun getIdentifier(): String
-            = "wf"
-
-    override fun getAuthor(): String
-            = addons.description.authors.joinToString(", ")
-
-    override fun getVersion(): String
-            = addons.description.version
-
-    override fun onPlaceholderRequest(player: Player?, params: String): String {
-        if (player == null)
-            return ""
-        if (identifier == "prestige") {
-            return if (prestigeAPI.exists(player.uniqueId) && prestigeAPI.getPrestige(player.uniqueId) == 0) "0"
-            else toRoman(prestigeAPI.getPrestige(player.uniqueId)) ?: ""
-        }
-        return super.onPlaceholderRequest(player, params)
-    }
+fun toRoman(number: Int): String? {
+    return String(CharArray(number)).replace('\u0000', 'I')
+        .replace("IIIII", "V")
+        .replace("IIII", "IV")
+        .replace("VV", "X")
+        .replace("VIV", "IX")
+        .replace("XXXXX", "L")
+        .replace("XXXX", "XL")
+        .replace("LL", "C")
+        .replace("LXL", "XC")
+        .replace("CCCCC", "D")
+        .replace("CCCC", "CD")
+        .replace("DD", "M")
+        .replace("DCD", "CM")
 }
