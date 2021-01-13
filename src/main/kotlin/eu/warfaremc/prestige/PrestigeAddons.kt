@@ -25,10 +25,15 @@ package eu.warfaremc.prestige
 import com.google.common.cache.Cache
 import com.google.common.cache.CacheBuilder
 import eu.warfaremc.prestige.api.PrestigeAPI
+import eu.warfaremc.prestige.command.PClaimCommand
+import eu.warfaremc.prestige.command.SetPCommand
+import eu.warfaremc.prestige.command.SyncPCommand
+import eu.warfaremc.prestige.command.TopCommand
 import eu.warfaremc.prestige.listener.GUI
 import eu.warfaremc.prestige.listener.PhaseListener
 import eu.warfaremc.prestige.listener.PlayerListener
 import eu.warfaremc.prestige.model.PrestigeAPImpl
+import eu.warfaremc.prestige.model.PrestigePlaceholder
 import eu.warfaremc.prestige.model.Prestiges
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.MainScope
@@ -129,7 +134,14 @@ class PrestigeAddons : BentoboxAddon(), CoroutineScope by MainScope() {
         registerListener(PhaseListener ())
         registerListener(PlayerListener())
         registerListener(GUI())
-
+        if (server.pluginManager.getPlugin("PlaceholderAPI") != null)
+            PrestigePlaceholder.register()
+        plugin.addonsManager.gameModeAddons.forEach { addon ->
+            addon.playerCommand.ifPresent { PClaimCommand(this, it, "pclaim") }
+            addon.adminCommand .ifPresent { SetPCommand(this, it, "setp") }
+            addon.playerCommand.ifPresent { SyncPCommand(this, it, "syncp") }
+            addon.playerCommand.ifPresent { TopCommand(this, it, "top") }
+        }
     }
 
     override fun onDisable() {  }
