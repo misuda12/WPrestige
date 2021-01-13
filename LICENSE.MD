@@ -1,6 +1,6 @@
 This file is part of WarfareMC, licensed under the MIT License.
 
-Copyright (C) 2020 WarfareMC & Team
+Copyright (C) 2021 WarfareMC & Team
 
 Permission is hereby granted, free of charge,
 to any person obtaining a copy of this software and associated documentation files (the "Software"),
