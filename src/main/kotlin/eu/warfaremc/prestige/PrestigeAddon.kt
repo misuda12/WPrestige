@@ -179,7 +179,7 @@ class PrestigeAddon : Addon(), CoroutineScope by MainScope() {
             logger.error { "Failed to initialize CommandFramework::CommandManager" }
         }
         finally {
-            audiences = BukkitAudiences::class.java.getMethod("create", Plugin::class.java).invoke(null, this) as BukkitAudiences
+            audiences = BukkitAudiences.create(plugin)
             commandHelp = MinecraftHelp("/prestige help", audiences::sender, commandManager)
             if (commandManager.queryCapability(CloudBukkitCapabilities.BRIGADIER))
                 commandManager.registerBrigadier()

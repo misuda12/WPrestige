@@ -25,15 +25,14 @@ package eu.warfaremc.prestige.model
 import eu.warfaremc.prestige.api.PrestigeAPI
 import eu.warfaremc.prestige.kguava
 import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.transactions.TransactionManager
 import org.jetbrains.exposed.sql.transactions.transaction
-import java.util.*
 import kotlin.collections.ArrayList
 
 internal class PrestigeAPImpl(val prestige: eu.warfaremc.prestige.PrestigeAddon) : PrestigeAPI {
     override fun addPrestige(uniqueId: String?): Int {
-        println("addPrestige, ${uniqueId ?: "null"}")
         if (uniqueId.isNullOrEmpty())
-            return 1
+            return 0
         val number = getPrestige(uniqueId) + 1
         kguava.put(uniqueId, number)
         transaction(prestige.database) {
@@ -47,7 +46,6 @@ internal class PrestigeAPImpl(val prestige: eu.warfaremc.prestige.PrestigeAddon)
     }
 
     override fun setPrestige(uniqueId: String?, number: Int) {
-        println("setPrestige, ${uniqueId ?: "null"}, $number")
         if (uniqueId.isNullOrEmpty())
             return
         val entry = kguava.getIfPresent(uniqueId)
@@ -55,34 +53,30 @@ internal class PrestigeAPImpl(val prestige: eu.warfaremc.prestige.PrestigeAddon)
             return
         kguava.put(uniqueId, number)
         transaction(prestige.database) {
-            if (exists(uniqueId)) {
-                Prestiges.update({ Prestiges.id eq uniqueId }) {
-                    it[level] = number
-                }
-            }
-            Prestiges.insert {
-                it[id]    = uniqueId
-                it[level] = number
-            }
+            val sql = "INSERT OR REPLACE INTO `t_prestiges` VALUES (?, ?)"
+            val statement = TransactionManager.current().connection.prepareStatement(sql, false)
+                statement.fillParameters(listOf(
+                    Pair(VarCharColumnType(), uniqueId),
+                    Pair(IntegerColumnType(), number)
+                ))
+            statement.executeQuery()
         }
     }
 
     override fun getPrestige(uniqueId: String?): Int {
-        println("getPrestige, ${uniqueId ?: "null"}")
         if (uniqueId.isNullOrEmpty())
-            return 1
+            return 0
         val entry = kguava.getIfPresent(uniqueId)
         if (entry != null)
             return entry as Int
-        var result = 1
+        var result = 0
         transaction(prestige.database) {
-            result = Prestiges.select { Prestiges.id eq uniqueId }.singleOrNull()?.get(Prestiges.level) ?: 1
+            result = Prestiges.select { Prestiges.id eq uniqueId }.singleOrNull()?.get(Prestiges.level) ?: 0
         }
         return result
     }
 
     override fun getAll(): MutableList<Prestige> {
-        println("getAll")
         val prestiges: ArrayList<Prestige> = arrayListOf()
         transaction(prestige.database) {
             Prestiges.selectAll().map {
@@ -100,7 +94,6 @@ internal class PrestigeAPImpl(val prestige: eu.warfaremc.prestige.PrestigeAddon)
     override fun getCurrentPrestige(uniqueId: String?): Int = getPrestige(uniqueId)
 
     override fun exists(uniqueId: String?): Boolean {
-        println("exists, ${uniqueId ?: "null"}")
         if (uniqueId.isNullOrEmpty())
             return false
         if (kguava.getIfPresent(uniqueId) != null)
@@ -113,7 +106,6 @@ internal class PrestigeAPImpl(val prestige: eu.warfaremc.prestige.PrestigeAddon)
     }
 
     override fun remove(uniqueId: String?): Prestige? {
-        println("remove, ${uniqueId ?: "null"}")
         if (uniqueId.isNullOrEmpty())
             return null
         val entry = kguava.getIfPresent(uniqueId)
@@ -126,21 +118,17 @@ internal class PrestigeAPImpl(val prestige: eu.warfaremc.prestige.PrestigeAddon)
     }
 
     override fun save(uniqueId: String?) {
-        println("save, ${uniqueId ?: "null"}")
         if (uniqueId.isNullOrEmpty())
             return
-        val entry = kguava.getIfPresent(uniqueId) ?: return
+        val number = kguava.getIfPresent(uniqueId) ?: return
         transaction(prestige.database) {
-            if (exists(uniqueId)) {
-                Prestiges.update({ Prestiges.id eq uniqueId }) {
-                    it[level] = entry as Int
-                }
-                return@transaction
-            }
-            Prestiges.insert {
-                it[id]    = uniqueId
-                it[level] = entry as Int
-            }
+            val sql = "INSERT OR REPLACE INTO `t_prestiges` VALUES (?, ?)"
+            val statement = TransactionManager.current().connection.prepareStatement(sql, false)
+            statement.fillParameters(listOf(
+                Pair(VarCharColumnType(), uniqueId),
+                Pair(IntegerColumnType(), number)
+            ))
+            statement.executeQuery()
         }
     }
 }

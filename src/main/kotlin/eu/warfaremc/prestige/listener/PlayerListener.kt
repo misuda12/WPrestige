@@ -47,7 +47,7 @@ class PlayerListener : Listener {
     @EventHandler
     fun IslandCreatedEvent.on() {
         if (api.exists(island.uniqueId) == false) {
-            api.setPrestige(island.uniqueId, 1)
+            api.setPrestige(island.uniqueId, 0)
         }
     }
 
