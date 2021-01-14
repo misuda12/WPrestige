@@ -31,6 +31,7 @@ import kotlin.collections.ArrayList
 
 internal class PrestigeAPImpl(val prestige: eu.warfaremc.prestige.PrestigeAddon) : PrestigeAPI {
     override fun addPrestige(uniqueId: String?): Int {
+        println("addPrestige, ${uniqueId ?: "null"}")
         if (uniqueId.isNullOrEmpty())
             return 1
         val number = getPrestige(uniqueId) + 1
@@ -46,6 +47,7 @@ internal class PrestigeAPImpl(val prestige: eu.warfaremc.prestige.PrestigeAddon)
     }
 
     override fun setPrestige(uniqueId: String?, number: Int) {
+        println("setPrestige, ${uniqueId ?: "null"}, $number")
         if (uniqueId.isNullOrEmpty())
             return
         val entry = kguava.getIfPresent(uniqueId)
@@ -66,6 +68,7 @@ internal class PrestigeAPImpl(val prestige: eu.warfaremc.prestige.PrestigeAddon)
     }
 
     override fun getPrestige(uniqueId: String?): Int {
+        println("getPrestige, ${uniqueId ?: "null"}")
         if (uniqueId.isNullOrEmpty())
             return 1
         val entry = kguava.getIfPresent(uniqueId)
@@ -79,6 +82,7 @@ internal class PrestigeAPImpl(val prestige: eu.warfaremc.prestige.PrestigeAddon)
     }
 
     override fun getAll(): MutableList<Prestige> {
+        println("getAll")
         val prestiges: ArrayList<Prestige> = arrayListOf()
         transaction(prestige.database) {
             Prestiges.selectAll().map {
@@ -96,6 +100,7 @@ internal class PrestigeAPImpl(val prestige: eu.warfaremc.prestige.PrestigeAddon)
     override fun getCurrentPrestige(uniqueId: String?): Int = getPrestige(uniqueId)
 
     override fun exists(uniqueId: String?): Boolean {
+        println("exists, ${uniqueId ?: "null"}")
         if (uniqueId.isNullOrEmpty())
             return false
         if (kguava.getIfPresent(uniqueId) != null)
@@ -108,6 +113,7 @@ internal class PrestigeAPImpl(val prestige: eu.warfaremc.prestige.PrestigeAddon)
     }
 
     override fun remove(uniqueId: String?): Prestige? {
+        println("remove, ${uniqueId ?: "null"}")
         if (uniqueId.isNullOrEmpty())
             return null
         val entry = kguava.getIfPresent(uniqueId)
@@ -120,6 +126,7 @@ internal class PrestigeAPImpl(val prestige: eu.warfaremc.prestige.PrestigeAddon)
     }
 
     override fun save(uniqueId: String?) {
+        println("save, ${uniqueId ?: "null"}")
         if (uniqueId.isNullOrEmpty())
             return
         val entry = kguava.getIfPresent(uniqueId) ?: return

@@ -57,8 +57,7 @@ import cloud.commandframework.arguments.parser.StandardParameters
 import cloud.commandframework.meta.CommandMeta
 
 import cloud.commandframework.arguments.parser.ParserParameters
-
-
+import cloud.commandframework.kotlin.extension.buildAndRegister
 
 
 @PublishedApi
@@ -188,9 +187,9 @@ class PrestigeAddon : Addon(), CoroutineScope by MainScope() {
                 commandManager.registerAsynchronousCompletions()
 
             val commandMetaFunction: java.util.function.Function<ParserParameters, CommandMeta> =
-                java.util.function.Function<ParserParameters, CommandMeta> { p ->
+                java.util.function.Function<ParserParameters, CommandMeta> { parser ->
                     CommandMeta.simple()
-                        .with(CommandMeta.DESCRIPTION, p.get(StandardParameters.DESCRIPTION, "No description"))
+                        .with(CommandMeta.DESCRIPTION, parser.get(StandardParameters.DESCRIPTION, "No description"))
                         .build()
                 }
             commandAnnotation = AnnotationParser(
@@ -198,6 +197,14 @@ class PrestigeAddon : Addon(), CoroutineScope by MainScope() {
                 CommandSender::class.java,
                 commandMetaFunction
             )
+            commandManager.buildAndRegister(
+                "prestige"
+            ) {
+                senderType = CommandSender::class
+                handler {
+                    addon.commandHelp.queryCommands("", it.sender)
+                }
+            }
             CommandResolver()
             logger.info { "Successfully installed CommandFramework Cloud 1.3" }
         }
