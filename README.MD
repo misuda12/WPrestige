@@ -25,7 +25,7 @@ public interface PrestigeAPI {
      * Adds player to WPRestige system, which is based on UUIDs
      * <pre>
      * var uuid = Player#getUniqueId
-     * (void) PrestigeAPI#addPrestige(uniqueId)
+     * (int) PrestigeAPI#addPrestige(uniqueId)
      * </pre>
      *
      * @param uniqueId the UUID of player we want to add
