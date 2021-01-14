@@ -32,7 +32,7 @@ import kotlin.collections.ArrayList
 internal class PrestigeAPImpl(val prestige: eu.warfaremc.prestige.PrestigeAddon) : PrestigeAPI {
     override fun addPrestige(uniqueId: String?): Int {
         if (uniqueId.isNullOrEmpty())
-            return 0
+            return 1
         val number = getPrestige(uniqueId) + 1
         kguava.put(uniqueId, number)
         transaction(prestige.database) {
@@ -49,7 +49,7 @@ internal class PrestigeAPImpl(val prestige: eu.warfaremc.prestige.PrestigeAddon)
         if (uniqueId.isNullOrEmpty())
             return
         val entry = kguava.getIfPresent(uniqueId)
-        if (entry != null && entry as Int == number || number < 0)
+        if (entry != null && entry as Int == number || number < 1)
             return
         kguava.put(uniqueId, number)
         transaction(prestige.database) {
@@ -67,13 +67,13 @@ internal class PrestigeAPImpl(val prestige: eu.warfaremc.prestige.PrestigeAddon)
 
     override fun getPrestige(uniqueId: String?): Int {
         if (uniqueId.isNullOrEmpty())
-            return 0
+            return 1
         val entry = kguava.getIfPresent(uniqueId)
         if (entry != null)
             return entry as Int
-        var result = 0
+        var result = 1
         transaction(prestige.database) {
-            result = Prestiges.select { Prestiges.id eq uniqueId }.singleOrNull()?.get(Prestiges.level) ?: 0
+            result = Prestiges.select { Prestiges.id eq uniqueId }.singleOrNull()?.get(Prestiges.level) ?: 1
         }
         return result
     }

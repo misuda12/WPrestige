@@ -38,7 +38,8 @@ class PhaseListener : Listener {
             if (!listOf(0, 11000, 11001).contains(blockNumber))
                 return
             val number = api.addPrestige(island.uniqueId)
-            addon.server.broadcastMessage("§a§l(!) §aOstrov §7${island.name} §a získal Prestige §7$number")
+            val player = island.owner?.let { island.owner ?: playerUUID?.let { registry -> addon.server.getPlayer(registry) }}
+            addon.server.broadcastMessage("§a§l(!) §aOstrov §7${island.name ?: player ?: "Unnamed"} §a získal Prestige §7$number")
         }
     }
 }

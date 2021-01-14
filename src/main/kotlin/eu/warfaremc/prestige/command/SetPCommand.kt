@@ -36,7 +36,8 @@ class SetPCommand(addon: Addon, parent: CompositeCommand, label: String) : Compo
         val player = addon.server.getPlayer(args[0]) ?: return false
         val number: Int
         try {
-            number = Integer.parseInt(args[1])
+            val a0 = Integer.parseInt(args[1])
+            number = if (a0 < 1) 1 else a0
         } catch (exception: NumberFormatException) {
             user.sendMessage("[WPrestige] Invalid argument at position 1, expected integer.")
             return false

@@ -30,7 +30,7 @@ import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.player.PlayerQuitEvent
 import world.bentobox.bentobox.api.events.island.IslandCreatedEvent
-import world.bentobox.bentobox.api.events.island.IslandDeletedEvent
+import world.bentobox.bentobox.api.events.island.IslandDeleteEvent
 import world.bentobox.bentobox.api.events.island.IslandResetEvent
 
 class PlayerListener : Listener {
@@ -47,7 +47,7 @@ class PlayerListener : Listener {
     @EventHandler
     fun IslandCreatedEvent.on() {
         if (api.exists(island.uniqueId) == false) {
-            api.setPrestige(island.uniqueId, 0)
+            api.setPrestige(island.uniqueId, 1)
         }
     }
 
@@ -62,7 +62,9 @@ class PlayerListener : Listener {
     }
 
     @EventHandler
-    fun IslandDeletedEvent.on() {
+    fun IslandDeleteEvent.on() {
+        if (island == null)
+            return
         api.remove(island.uniqueId)
         island.memberSet.mapNotNull { addon.server.getPlayer(it) }
             .filter { it.isOnline }

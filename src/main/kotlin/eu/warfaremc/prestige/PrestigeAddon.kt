@@ -41,7 +41,6 @@ import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.transaction
 import world.bentobox.aoneblock.AOneBlock
-import world.bentobox.aoneblock.oneblocks.OneBlocksManager
 import world.bentobox.bentobox.BentoBox
 import java.io.File
 import java.util.*
@@ -146,10 +145,11 @@ class PrestigeAddon : Addon(), CoroutineScope by MainScope() {
         if (server.pluginManager.getPlugin("PlaceholderAPI") != null)
             PrestigePlaceholder.register()
 
-        plugin.addonsManager.gameModeAddons.forEach { addon ->
-            addon.playerCommand.ifPresent { PClaimCommand(this, it, "pclaim") }
-            addon.adminCommand .ifPresent { SetPCommand(this, it, "setp") }
-            addon.playerCommand.ifPresent { TopCommand(this, it, "top") }
+        plugin.addonsManager.gameModeAddons.forEach {
+            logger.info { "Hooking commands into: " + it.description.name }
+            it.playerCommand.ifPresent { c -> PClaimCommand(this, c, "pclaim") }
+            it.playerCommand.ifPresent { c -> TopCommand(this, c, "top") }
+            it.adminCommand .ifPresent { c -> SetPCommand(this, c, "setp") }
         }
     }
 
