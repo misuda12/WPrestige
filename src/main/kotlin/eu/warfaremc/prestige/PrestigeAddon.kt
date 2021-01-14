@@ -54,6 +54,7 @@ import world.bentobox.bentobox.api.addons.Addon
 import cloud.commandframework.arguments.parser.StandardParameters
 import cloud.commandframework.meta.CommandMeta
 import cloud.commandframework.arguments.parser.ParserParameters
+import cloud.commandframework.kotlin.extension.buildAndRegister
 import eu.warfaremc.prestige.miscellanneous.findIslandByPlayer
 import org.bukkit.Bukkit
 import org.bukkit.Material
@@ -198,6 +199,16 @@ class PrestigeAddon : Addon(), CoroutineScope by MainScope() {
                 CommandSender::class.java,
                 commandMetaFunction
             )
+            commandManager.buildAndRegister(
+                "wpdebug"
+            ) {
+                senderType = CommandSender::class
+                permission = "wp.admin.debug"
+                handler {
+                    it.sender.sendMessage("[@] DEBUG")
+                    it.sender.sendMessage(commandManager.commands.joinToString(", "))
+                }
+            }
             commandAnnotation.parse(this)
             logger.info { "Successfully installed CommandFramework Cloud 1.3" }
         }
@@ -229,7 +240,7 @@ class PrestigeAddon : Addon(), CoroutineScope by MainScope() {
             when {
                 number >= 2  -> {
                     if (sender.hasPermission("prestige.2"))
-                        return
+                        sender.sendMessage("[WPrestige] No rewards for ya'").also { return }
                     addon.server.dispatchCommand(Bukkit.getConsoleSender(), "lp user ${sender.name} perm set prestige.2")
                     addon.server.dispatchCommand(Bukkit.getConsoleSender(), "lp user ${sender.name} perm set cmi.command.warp.pvp")
                     sender.sendMessage("§a§l(!) §7§nGRATULUJEME!§f §aPrávě jsi odemkl §7/warp pvp")
@@ -237,7 +248,7 @@ class PrestigeAddon : Addon(), CoroutineScope by MainScope() {
                 }
                 number >= 3  -> {
                     if (sender.hasPermission("prestige.3.new"))
-                        return
+                        sender.sendMessage("[WPrestige] No rewards for ya'").also { return }
                     addon.server.dispatchCommand(Bukkit.getConsoleSender(), "lp user ${sender.name} perm set prestige.3.new")
                     addon.server.dispatchCommand(Bukkit.getConsoleSender(), "lp user ${sender.name} perm set enchantgui.enchant")
                     addon.server.dispatchCommand(Bukkit.getConsoleSender(), "lp user ${sender.name} perm set oregen.p3")
@@ -247,7 +258,7 @@ class PrestigeAddon : Addon(), CoroutineScope by MainScope() {
                 }
                 number >= 4 || number >= 5 || number >= 6 || number >= 7 || number >= 8 || number >= 9 -> {
                     if (sender.hasPermission("prestige.4"))
-                        return
+                        sender.sendMessage("[WPrestige] No rewards for ya'").also { return }
                     addon.server.dispatchCommand(Bukkit.getConsoleSender(), "lp user ${sender.name} perm set prestige.$number")
                     sender.inventory?.addItem(ItemStack(Material.NETHER_STAR, 2))
                     sender.sendMessage("§a§l(!) §7§nGRATULUJEME!§f §aZískal jsi §72x Nether Star")
@@ -255,7 +266,7 @@ class PrestigeAddon : Addon(), CoroutineScope by MainScope() {
                 }
                 number >= 10 -> {
                     if (sender.hasPermission("prestige.10"))
-                        return
+                        sender.sendMessage("[WPrestige] No rewards for ya'").also { return }
                     addon.server.dispatchCommand(Bukkit.getConsoleSender(), "lp user ${sender.name} perm set prestige.10")
                     addon.server.dispatchCommand(Bukkit.getConsoleSender(), "lp user ${sender.name} perm set deluxetags.tag.Trihard")
                     sender.sendMessage("§a§l(!) §7§nGRATULUJEME!§f §aPrávě jsi odemkl §7Trihard Tag")
