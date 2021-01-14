@@ -61,7 +61,7 @@ internal lateinit var configuration: FileConfiguration
 
 @PublishedApi
 internal lateinit var api: PrestigeAPI
-open class PrestigeAddon : Addon(), CoroutineScope by MainScope() {
+class PrestigeAddon : Addon(), CoroutineScope by MainScope() {
 
     val logger by lazy { KotlinLogging.logger("WPrestiges") }
     internal val session = UUID.randomUUID().toString()
@@ -103,7 +103,7 @@ open class PrestigeAddon : Addon(), CoroutineScope by MainScope() {
             driver = "org.sqlite.JDBC"
         )
         val file = File("$dataFolder$separate/config.yml")
-        if (file.exists().not())
+        if (file.exists() == false)
             saveDefaultConfig()
         configuration = config
         api = PrestigeAPImpl(this)
