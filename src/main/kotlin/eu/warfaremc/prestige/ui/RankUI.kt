@@ -54,7 +54,7 @@ fun openParticlesMenu(player: Player?) {
         val triangle = listOf(13, 21, 22, 23, 29, 30, 31, 32, 33, 37, 38, 39, 40, 41, 42, 43)
         val border = item(Material.BLACK_STAINED_GLASS_PANE) {
             meta<ItemMeta> {
-                name = ""
+                name = " "
             }
         }
         var list: List<Prestige> = emptyList()
