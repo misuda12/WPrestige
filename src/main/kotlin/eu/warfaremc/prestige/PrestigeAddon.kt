@@ -90,15 +90,23 @@ class PrestigeAddon : Addon(), CoroutineScope by MainScope() {
         kguava = CacheBuilder.newBuilder()
             .expireAfterWrite(Long.MAX_VALUE, TimeUnit.DAYS)                                                            // Never expirable cache
             .build()
+
         mesql = Database.connect(
             url = "jdbc:sqlite::memory:",
             user = "proxy",
             password = session,
             driver = "org.sqlite.JDBC"
         )
+
         api = PrestigeAPImpl(this)
     }
 
+    override fun onLoad() {
+        if (!dataFolder.exists())
+            dataFolder.mkdir().also { logger.info { "[IO] dataFolder ~'${dataFolder.path}' created" } }
+
+        super.onLoad()
+    }
     override fun onEnable() {
         if (::api.isInitialized == false)
             api = PrestigeAPImpl(this)
@@ -118,6 +126,8 @@ class PrestigeAddon : Addon(), CoroutineScope by MainScope() {
         }
         logger.warn { "Using primary database: '${database.url}, productName: ${database.vendor}, " +
                 "productVersion: ${database.version}, logger: $logger, dialect: ${database.dialect}'" }
+
+
 
         registerListener(PhaseListener ())
         registerListener(PlayerListener())
