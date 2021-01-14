@@ -22,12 +22,15 @@
 
 package eu.warfaremc.prestige
 
+import cloud.commandframework.annotations.AnnotationParser
+import cloud.commandframework.bukkit.CloudBukkitCapabilities
+import cloud.commandframework.execution.AsynchronousCommandExecutionCoordinator
+import cloud.commandframework.minecraft.extras.MinecraftHelp
+import cloud.commandframework.paper.PaperCommandManager
 import com.google.common.cache.Cache
 import com.google.common.cache.CacheBuilder
 import eu.warfaremc.prestige.api.PrestigeAPI
-import eu.warfaremc.prestige.command.PClaimCommand
-import eu.warfaremc.prestige.command.SetPCommand
-import eu.warfaremc.prestige.command.TopCommand
+import eu.warfaremc.prestige.command.CommandResolver
 import eu.warfaremc.prestige.ui.RankUI
 import eu.warfaremc.prestige.listener.PhaseListener
 import eu.warfaremc.prestige.listener.PlayerListener
@@ -37,6 +40,9 @@ import eu.warfaremc.prestige.model.Prestiges
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.MainScope
 import mu.KotlinLogging
+import net.kyori.adventure.platform.bukkit.BukkitAudiences
+import org.bukkit.command.CommandSender
+import org.bukkit.plugin.Plugin
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -46,6 +52,14 @@ import java.io.File
 import java.util.*
 import java.util.concurrent.TimeUnit
 import world.bentobox.bentobox.api.addons.Addon
+import cloud.commandframework.arguments.parser.StandardParameters
+
+import cloud.commandframework.meta.CommandMeta
+
+import cloud.commandframework.arguments.parser.ParserParameters
+
+
+
 
 @PublishedApi
 internal lateinit var addon: PrestigeAddon
@@ -70,6 +84,13 @@ class PrestigeAddon : Addon(), CoroutineScope by MainScope() {
 
     val logger by lazy { KotlinLogging.logger("WPrestiges") }
     internal val session = UUID.randomUUID().toString()
+
+    // Command stuff
+    lateinit var audiences: BukkitAudiences
+    lateinit var commandManager: PaperCommandManager<CommandSender>
+    // lateinit var commandConfirmationManager: CommandConfirmationManager<CommandSender>
+    lateinit var commandAnnotation: AnnotationParser<CommandSender>
+    lateinit var commandHelp: MinecraftHelp<CommandSender>
 
     @PublishedApi
     internal var fisql: Database? = null
@@ -145,14 +166,45 @@ class PrestigeAddon : Addon(), CoroutineScope by MainScope() {
         if (server.pluginManager.getPlugin("PlaceholderAPI") != null)
             PrestigePlaceholder.register()
 
-        plugin.addonsManager.gameModeAddons.forEach {
-            logger.info { "Hooking commands into: " + it.description.name }
-            it.playerCommand.ifPresent { c -> PClaimCommand(this, c, "pclaim") }
-            it.playerCommand.ifPresent { c -> TopCommand(this, c, "top") }
-            it.adminCommand .ifPresent { c -> SetPCommand(this, c, "setp") }
+        // Command CommandFramework
+        val executionCoordinatorFunction =
+            AsynchronousCommandExecutionCoordinator.newBuilder<CommandSender>().build()
+        try {
+            commandManager = PaperCommandManager(
+                plugin,
+                executionCoordinatorFunction,
+                ::identity,
+                ::identity
+            )
+        } catch (exception: Exception) {
+            logger.error { "Failed to initialize CommandFramework::CommandManager" }
+        }
+        finally {
+            audiences = BukkitAudiences::class.java.getMethod("create", Plugin::class.java).invoke(null, this) as BukkitAudiences
+            commandHelp = MinecraftHelp("/prestige help", audiences::sender, commandManager)
+            if (commandManager.queryCapability(CloudBukkitCapabilities.BRIGADIER))
+                commandManager.registerBrigadier()
+            if (commandManager.queryCapability(CloudBukkitCapabilities.ASYNCHRONOUS_COMPLETION))
+                commandManager.registerAsynchronousCompletions()
+
+            val commandMetaFunction: java.util.function.Function<ParserParameters, CommandMeta> =
+                java.util.function.Function<ParserParameters, CommandMeta> { p ->
+                    CommandMeta.simple()
+                        .with(CommandMeta.DESCRIPTION, p.get(StandardParameters.DESCRIPTION, "No description"))
+                        .build()
+                }
+            commandAnnotation = AnnotationParser(
+                commandManager,
+                CommandSender::class.java,
+                commandMetaFunction
+            )
+            CommandResolver()
+            logger.info { "Successfully installed CommandFramework Cloud 1.3" }
         }
     }
 
     override fun onDisable() {  }
 
 }
+
+fun <T> identity(t: T): T = t

@@ -22,6 +22,7 @@
 
 package eu.warfaremc.prestige.miscellanneous
 
+import eu.warfaremc.prestige.addon
 import eu.warfaremc.prestige.bentobox
 import world.bentobox.bentobox.database.objects.Island
 import java.util.*
@@ -33,4 +34,13 @@ fun findIslandByPlayer(uniqueId: UUID?): Island? {
         it.memberSet.contains(uniqueId)
                 || (it.owner != null && it.owner!! == uniqueId)
     }
+}
+
+fun findNameByIsland(island: Island?): String {
+    if (island == null)
+        return "unknown"
+    if (island.name != null)
+        return island.name!!
+    val player = island.owner?.let { addon.server.getPlayer(it) } ?: return "unknown"
+    return player.name
 }
