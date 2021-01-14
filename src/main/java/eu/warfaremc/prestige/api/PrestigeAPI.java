@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import static eu.warfaremc.prestige.PrestigeAddonsKt.api;
+import static eu.warfaremc.prestige.PrestigeAddonKt.api;
 
 /**
  * The Prestige API is used handle some unsafes of WPrestige
@@ -41,7 +41,7 @@ public interface PrestigeAPI {
      * Adds player to WPRestige system, which is based on UUIDs
      * <pre>
      * var uuid = Player#getUniqueId
-     * (void) PrestigeAPI#addPrestige(uniqueId)
+     * (int) PrestigeAPI#addPrestige(uniqueId)
      * </pre>
      *
      * @param uniqueId the UUID of player we want to add

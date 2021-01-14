@@ -48,7 +48,7 @@ import java.util.concurrent.TimeUnit
 import world.bentobox.bentobox.api.addons.Addon
 
 @PublishedApi
-internal lateinit var addons: PrestigeAddons
+internal lateinit var addons: PrestigeAddon
     private set
 
 @PublishedApi
@@ -61,7 +61,7 @@ internal lateinit var configuration: FileConfiguration
 
 @PublishedApi
 internal lateinit var api: PrestigeAPI
-open class PrestigeAddons : Addon(), CoroutineScope by MainScope() {
+class PrestigeAddon : Addon(), CoroutineScope by MainScope() {
 
     val logger by lazy { KotlinLogging.logger("WPrestiges") }
     internal val session = UUID.randomUUID().toString()
@@ -103,8 +103,6 @@ open class PrestigeAddons : Addon(), CoroutineScope by MainScope() {
             driver = "org.sqlite.JDBC"
         )
         val file = File("$dataFolder$separate/config.yml")
-        if (file.exists().not())
-            saveDefaultConfig()
         configuration = config
         api = PrestigeAPImpl(this)
     }
@@ -128,8 +126,6 @@ open class PrestigeAddons : Addon(), CoroutineScope by MainScope() {
         }
         logger.warn { "Using primary database: '${database.url}, productName: ${database.vendor}, " +
                 "productVersion: ${database.version}, logger: $logger, dialect: ${database.dialect}'" }
-
-
 
         registerListener(PhaseListener ())
         registerListener(PlayerListener())

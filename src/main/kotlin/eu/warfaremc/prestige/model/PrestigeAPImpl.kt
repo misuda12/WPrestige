@@ -30,7 +30,7 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.*
 import kotlin.collections.ArrayList
 
-internal class PrestigeAPImpl(val prestige: eu.warfaremc.prestige.PrestigeAddons) : PrestigeAPI {
+internal class PrestigeAPImpl(val prestige: eu.warfaremc.prestige.PrestigeAddon) : PrestigeAPI {
     override fun addPrestige(uniqueId: UUID?): Int {
         if (uniqueId == null)
             return 0
