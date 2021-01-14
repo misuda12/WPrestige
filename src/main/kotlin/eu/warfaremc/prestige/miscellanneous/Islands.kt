@@ -1,9 +1,3 @@
-package eu.warfaremc.prestige.miscellanneous
-
-import eu.warfaremc.prestige.bentobox
-import world.bentobox.bentobox.database.objects.Island
-import java.util.*
-
 /*
  * This file is part of WarfareMC, licensed under the MIT License.
  *
@@ -25,6 +19,12 @@ import java.util.*
  * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+
+package eu.warfaremc.prestige.miscellanneous
+
+import eu.warfaremc.prestige.bentobox
+import world.bentobox.bentobox.database.objects.Island
+import java.util.*
 
 fun findIslandByPlayer(uniqueId: UUID?): Island? {
     if (uniqueId == null)
