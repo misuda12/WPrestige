@@ -11,10 +11,10 @@ Minecraft BentoBox addon written in mixed Kotlin 1.4.10 and Java 1.11. This addo
 ## Commands & Permissions
 ```  
 ## Currently availible commands {@since 1.0-SNAPSHOT}
-/<prefix> pclaim                     - (wp.claim) Claims your rewards if present
-/<prefix> syncp                      - (wp.claim) Will synchronize WPrestige with your actual island
-/<prefix> setp <player> <int:number> - (wp.admin.set) Sets prestige number
-/<prefix> top                        - (wf.top) Shows top islands by block broken ammount
+/prestige help                      - Help command obviously ?
+/prestige claim                     - (wp.claim) Claims your rewards if present
+/prestige set <player> <int:number> - (wp.admin.set) Sets prestige number
+/prestige top                       - (wf.top) Shows top islands by block broken ammount
 ```
 
 ## API Usage
