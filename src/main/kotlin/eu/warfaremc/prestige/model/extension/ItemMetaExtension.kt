@@ -35,7 +35,7 @@ inline fun <reified T : ItemMeta> itemMeta(material: Material, body: T.() -> Uni
     Bukkit.getItemFactory().getItemMeta(material)
         .let { it as? T }
         ?.apply(body)
-        ?: throw IllegalArgumentException("ItemMeta for provided material does not match actual type parameter")
+        ?: throw IllegalArgumentException("ItemMeta for provided material does not match actual type parameters")
 
 var ItemMeta.stringLore: String?
     get() = lore?.joinToString("\n")
