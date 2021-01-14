@@ -44,7 +44,7 @@ internal class PrestigeAPImpl(val prestige: eu.warfaremc.prestige.PrestigeAddon)
                 }
                 return@transaction
             }
-            Prestiges.insertIgnore {
+            Prestiges.insert {
                 it[id] = uniqueId
                 it[data] = number
             }
@@ -65,9 +65,9 @@ internal class PrestigeAPImpl(val prestige: eu.warfaremc.prestige.PrestigeAddon)
                     it[data] = number
                 }
             }
-            Prestiges.insertUpdate(Prestige(uniqueId, number)) { insert, it ->
-                insert[id]   = it.id
-                insert[data] = it.data
+            Prestiges.insert {
+                it[id]   = uniqueId
+                it[data] = number
             }
         }
     }
@@ -134,9 +134,9 @@ internal class PrestigeAPImpl(val prestige: eu.warfaremc.prestige.PrestigeAddon)
                     it[data] = entry as Int
                 }
             }
-            Prestiges.insertUpdate(Prestige(uniqueId, entry as Int)) { insert, it ->
-                insert[id]   = it.id
-                insert[data] = it.data
+            Prestiges.insert {
+                it[id]   = uniqueId
+                it[data] = entry as Int
             }
         }
     }
@@ -152,14 +152,10 @@ internal class PrestigeAPImpl(val prestige: eu.warfaremc.prestige.PrestigeAddon)
                         it[data] = prestige.data
                     }
                 }
-                Prestiges.insertUpdate(Prestige(prestige.id, prestige.data)) { insert, it ->
-                    insert[id]   = it.id
-                    insert[data] = it.data
+                Prestiges.insert {
+                    it[id]   = prestige.id
+                    it[data] = prestige.data
                 }
-            }
-            Prestiges.batchInsertUpdate(prestiges, listOf(Prestiges.id, Prestiges.data)) { batch, it ->
-                batch[id]   = it.id
-                batch[data] = it.data
             }
         }
     }

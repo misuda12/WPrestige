@@ -127,8 +127,6 @@ class PrestigeAddon : Addon(), CoroutineScope by MainScope() {
         logger.warn { "Using primary database: '${database.url}, productName: ${database.vendor}, " +
                 "productVersion: ${database.version}, logger: $logger, dialect: ${database.dialect}'" }
 
-
-
         registerListener(PhaseListener ())
         registerListener(PlayerListener())
         registerListener(RankUI())
