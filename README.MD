@@ -22,60 +22,44 @@ Minecraft BentoBox addon written in mixed Kotlin 1.4.10 and Java 1.11. This addo
 public interface PrestigeAPI {
 
     /**
-     * Adds player to WPRestige system, which is based on UUIDs
+     * Adds player to WPRestige system, which is based on BentoBoxUUID
      * <pre>
-     * var uuid = Player#getUniqueId
+     * var uuid = Island#getUniqueId
      * (int) PrestigeAPI#addPrestige(uniqueId)
      * </pre>
      *
-     * @param uniqueId the UUID of player we want to add
-     * @return Current prestige level
+     * @param uniqueId the UUID of island we want to add to
+     * @return Current prestige level + 1
      */
-    int addPrestige(@Nullable UUID uniqueId);
+    int addPrestige(@Nullable String uniqueId);
 
     /**
-     * Sets a player progression
+     * Sets a island progression
+     * This will autosave progression
      * <pre>
-     * var uuid = Player#getUniqueId
-     * int number = any#number .. range 0-9999
+     * var uuid = Island#getUniqueId
+     * int number = any#number range 0 .. 10++
      * (void) PrestigeAPI#setPrestige(uniqueId, number)
      *
-     * To save data we can use {@link #setPrestige(UUID, int, boolean)}
-     *                         {@link #save(UUID)}
+     * To save data we can also use {@link #save(String)}
      * </pre>
      *
-     * @param uniqueId the UUID of player we want to set
+     * @param uniqueId the UUID of island we want to set
      * @param number number that represents prestige progress
      */
-    default void setPrestige(@Nullable UUID uniqueId, int number) {
-        setPrestige(uniqueId, number, true);
-    }
-
-    /**
-     * Sets a player progression
-     * <pre>
-     * var uuid = Player#getUniqueId
-     * int number = any#number .. range 0-9999
-     * (void) PrestigeAPI#setPrestige(uniqueId, number)
-     * </pre>
-     *
-     * @param uniqueId the UUID of player we want to set
-     * @param number number that represents prestige progress
-     * @param save if we want to also save this data
-     */
-    void setPrestige(@Nullable UUID uniqueId, int number, boolean save);
+    void setPrestige(@Nullable String uniqueId, int number);
 
     /**
      * Gets player progression number
      * <pre>
-     * var uuid = Player#getUniqueId
+     * var uuid = Island#getUniqueId
      * (int) PrestigeAPI#getPrestige(uniqueId)
      * </pre>
      *
      * @param uniqueId the UUID of player we want to get from
      * @return a number that represents prestige progress
      */
-    int getPrestige(@Nullable UUID uniqueId);
+    int getPrestige(@Nullable String uniqueId);
 
     /**
      * Get all currently saved prestiges
@@ -86,68 +70,56 @@ public interface PrestigeAPI {
      *
      * @return List with Prestige class {@link Prestige}
      */
-    List<Prestige> getAll();
-
-
+    List<Prestige> getAll()
+    
     /**
      * Gets player progression number
      * <pre>
-     * var uuid = Player#getUniqueId
+     * var uuid = Island#getUniqueId
      * (int) PrestigeAPI#getCurrectPrestige(uniqueId)
      * </pre>
      *
-     * @param uniqueId the UUID of player we want to get from
+     * @param uniqueId the UUID of island we want to get from
      * @return a number that represents prestige progress
-     * @deprecated replaced by {@link #getPrestige(UUID)}
+     * @deprecated replaced by {@link #getPrestige(String)}
      */
-
     @Deprecated
-    default int getCurrectPrestige(@Nullable UUID uniqueId) {
-        return getPrestige(uniqueId);
-    }
+    int getCurrentPrestige(@Nullable String uniqueId);
 
     /**
      * Checks if player uuid exits in WPrestige system
      * <pre>
-     * var uuid = Player#getUniqueId
+     * var uuid = Island#getUniqueId
      * (boolean) PrestigeAPI#exists(uniqueId)
      * </pre>
      *
-     * @param uniqueId the UUID of player we want to check
+     * @param uniqueId the UUID of island we want to check
      * @return a boolean if player exists in WPrestige
      */
-    boolean exists(@Nullable UUID uniqueId);
+    boolean exists(@Nullable String uniqueId);
 
     /**
-     * Checks if player uuid exits in WPrestige system
+     * Checks if island uuid exits in WPrestige system
      * and removes it, or returns null if not exists
      *
-     * @param uniqueId the UUID of player we want to remove
-     * @return a {@link Prestige} if player exists in WPrestige
+     * @param uniqueId the UUID of island we want to remove
+     * @return a {@link Prestige} if islandID exists in WPrestige
      *         or returns null
      */
 
     @Nullable
-    Prestige remove(@Nullable UUID uniqueId);
+    Prestige remove(@Nullable String uniqueId);
 
     /**
      * This method is used for saving data
      * <pre>
-     * var uuid = Player#getUniqueId
+     * var uuid = Island#getUniqueId
      *            PrestigeAPI#save(uniqueId)
      * </pre>
      *
-     * @param uniqueId the UUID of player we want to save from
+     * @param uniqueId the UUID of island we want to save from
      */
-    void save(@Nullable UUID uniqueId);
-
-    /**
-     * This method is used for saving data in bulk
-     * @param bulk Map that contains uuids of players
-     *             and their corresponding data you want
-     *             to save
-     */
-    void save(@NotNull Map<UUID, Integer> bulk);
+    void save(@Nullable String uniqueId);
 
     /**
      * Bake API instance

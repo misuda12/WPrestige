@@ -25,68 +25,49 @@ package eu.warfaremc.prestige.listener
 import eu.warfaremc.prestige.addon
 import eu.warfaremc.prestige.api
 import eu.warfaremc.prestige.kguava
+import eu.warfaremc.prestige.miscellanneous.findIslandByPlayer
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
-import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerQuitEvent
+import world.bentobox.bentobox.api.events.island.IslandCreatedEvent
 import world.bentobox.bentobox.api.events.island.IslandDeletedEvent
 import world.bentobox.bentobox.api.events.island.IslandResetEvent
-import world.bentobox.bentobox.api.events.team.TeamJoinedEvent as TeamJoinEvent
-import world.bentobox.bentobox.api.events.team.TeamKickEvent
-import world.bentobox.bentobox.api.events.team.TeamLeaveEvent  as TeamQuitEvent
 
 class PlayerListener : Listener {
 
     @EventHandler
-    fun PlayerJoinEvent.on() {
-        if (api.exists(player.uniqueId).not()) {
-            api.setPrestige(player.uniqueId, 0)
-            player.sendMessage("§a§l(!) §aProfil ve §7WarfarePrestiges §aúspěšně vytvořen.")
-            return
-        }
-        player.sendMessage("§b§l(!) §bNačítání dat WarfarePrestiges...")
-    }
-
-    @EventHandler
     fun PlayerQuitEvent.on() {
-        if (api.exists(player.uniqueId)) {
-            api.save(player.uniqueId)
+        val island = findIslandByPlayer(player.uniqueId)?.uniqueId ?: return
+        if (api.exists(island)) {
+            api.save(island)
             kguava.invalidate(player.uniqueId)
         }
     }
 
     @EventHandler
-    fun TeamJoinEvent.on() {
-        api.setPrestige(playerUUID, api.getPrestige(owner))
-        val player = addon.server.getPlayer(playerUUID) ?: return
-        player.sendMessage("§b§l(!) §bPrestige byla synchronizována.")
-    }
-
-    @EventHandler
-    fun TeamQuitEvent.on() {
-        api.remove(playerUUID)
-        val player = addon.server.getPlayer(playerUUID) ?: return
-        player.sendMessage("§b§l(!) §bPrestige byla nastavena na §70§b, jelikož jsi opustil ostrov.")
-    }
-
-    @EventHandler
-    fun TeamKickEvent.on() {
-        api.remove(playerUUID)
-        val player = addon.server.getPlayer(playerUUID) ?: return
-        player.sendMessage("§b§l(!) §bPrestige byla nastavena na §70§b, jelikož jsi opustil ostrov.")
+    fun IslandCreatedEvent.on() {
+        if (api.exists(island.uniqueId) == false) {
+            api.setPrestige(island.uniqueId, 0)
+        }
     }
 
     @EventHandler
     fun IslandResetEvent.on() {
-        api.remove(playerUUID)
-        val player = addon.server.getPlayer(playerUUID) ?: return
-        player.sendMessage("§b§l(!) §bPrestige byla nastavena na §70§b, jelikož jsi opustil ostrov.")
+        api.remove(island.uniqueId)
+        island.memberSet.mapNotNull { addon.server.getPlayer(it) }
+            .filter { it.isOnline }
+            .forEach {
+                it.sendMessage("§b§l(!) §bPrestige byla nastavena na §70§b, jelikož ostrov byl zmazán.")
+            }
     }
 
     @EventHandler
     fun IslandDeletedEvent.on() {
-        api.remove(playerUUID)
-        val player = addon.server.getPlayer(playerUUID) ?: return
-        player.sendMessage("§b§l(!) §bPrestige byla nastavena na §70§b, jelikož jsi opustil ostrov.")
+        api.remove(island.uniqueId)
+        island.memberSet.mapNotNull { addon.server.getPlayer(it) }
+            .filter { it.isOnline }
+            .forEach {
+                it.sendMessage("§b§l(!) §bPrestige byla nastavena na §70§b, jelikož ostrov byl zmazán.")
+            }
     }
 }

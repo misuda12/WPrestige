@@ -26,9 +26,11 @@ import java.util.*
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-
-fun findIslandByPlayer(player_uuid: UUID): Island? {
+fun findIslandByPlayer(uniqueId: UUID?): Island? {
+    if (uniqueId == null)
+        return null
     return bentobox.islands.islands.firstOrNull {
-        it.memberSet.contains(player_uuid) || (it.owner != null && it.owner!! == player_uuid)
-    };
+        it.memberSet.contains(uniqueId)
+                || (it.owner != null && it.owner!! == uniqueId)
+    }
 }

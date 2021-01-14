@@ -30,57 +30,50 @@ import java.util.*
 import kotlin.collections.ArrayList
 
 internal class PrestigeAPImpl(val prestige: eu.warfaremc.prestige.PrestigeAddon) : PrestigeAPI {
-    override fun addPrestige(uniqueId: UUID?): Int {
-        if (uniqueId == null)
+    override fun addPrestige(uniqueId: String?): Int {
+        if (uniqueId.isNullOrEmpty())
             return 0
         val number = getPrestige(uniqueId) + 1
         kguava.put(uniqueId, number)
         transaction(prestige.database) {
-            if (exists(uniqueId)) {
-                Prestiges.update({ Prestiges.id eq uniqueId }) {
-                    with(SqlExpressionBuilder) {
-                        it[data] = data + 1                                                                                 // TODO: Possible inconsistency ?
-                    }
+            Prestiges.update({ Prestiges.id eq uniqueId }) {
+                with(SqlExpressionBuilder) {
+                    it[level] = level + 1
                 }
-                return@transaction
-            }
-            Prestiges.insert {
-                it[id] = uniqueId
-                it[data] = number
             }
         }
         return number
     }
 
-    override fun setPrestige(uniqueId: UUID?, number: Int, save: Boolean) {
-        if (uniqueId == null)
+    override fun setPrestige(uniqueId: String?, number: Int) {
+        if (uniqueId.isNullOrEmpty())
             return
         val entry = kguava.getIfPresent(uniqueId)
         if (entry != null && entry as Int == number || number < 0)
             return
         kguava.put(uniqueId, number)
-        if (save) transaction(prestige.database) {
+        transaction(prestige.database) {
             if (exists(uniqueId)) {
                 Prestiges.update({ Prestiges.id eq uniqueId }) {
-                    it[data] = number
+                    it[level] = number
                 }
             }
             Prestiges.insert {
-                it[id]   = uniqueId
-                it[data] = number
+                it[id]    = uniqueId
+                it[level] = number
             }
         }
     }
 
-    override fun getPrestige(uniqueId: UUID?): Int {
-        if (uniqueId == null)
+    override fun getPrestige(uniqueId: String?): Int {
+        if (uniqueId.isNullOrEmpty())
             return 0
         val entry = kguava.getIfPresent(uniqueId)
         if (entry != null)
             return entry as Int
         var result = 0
         transaction(prestige.database) {
-            result = Prestiges.select { Prestiges.id eq uniqueId }.singleOrNull()?.get(Prestiges.data) ?: 0
+            result = Prestiges.select { Prestiges.id eq uniqueId }.singleOrNull()?.get(Prestiges.level) ?: 0
         }
         return result
     }
@@ -92,7 +85,7 @@ internal class PrestigeAPImpl(val prestige: eu.warfaremc.prestige.PrestigeAddon)
                 prestiges.add(
                     Prestige(
                         it[Prestiges.id],
-                        it[Prestiges.data]
+                        it[Prestiges.level]
                     )
                 )
             }
@@ -100,8 +93,10 @@ internal class PrestigeAPImpl(val prestige: eu.warfaremc.prestige.PrestigeAddon)
         return prestiges
     }
 
-    override fun exists(uniqueId: UUID?): Boolean {
-        if (uniqueId == null)
+    override fun getCurrentPrestige(uniqueId: String?): Int = getPrestige(uniqueId)
+
+    override fun exists(uniqueId: String?): Boolean {
+        if (uniqueId.isNullOrEmpty())
             return false
         if (kguava.getIfPresent(uniqueId) != null)
             return true
@@ -112,8 +107,8 @@ internal class PrestigeAPImpl(val prestige: eu.warfaremc.prestige.PrestigeAddon)
         return result
     }
 
-    override fun remove(uniqueId: UUID?): Prestige? {
-        if (uniqueId == null)
+    override fun remove(uniqueId: String?): Prestige? {
+        if (uniqueId.isNullOrEmpty())
             return null
         val entry = kguava.getIfPresent(uniqueId)
         transaction {
@@ -124,38 +119,20 @@ internal class PrestigeAPImpl(val prestige: eu.warfaremc.prestige.PrestigeAddon)
         return null
     }
 
-    override fun save(uniqueId: UUID?) {
-        if (uniqueId == null)
+    override fun save(uniqueId: String?) {
+        if (uniqueId.isNullOrEmpty())
             return
         val entry = kguava.getIfPresent(uniqueId) ?: return
         transaction(prestige.database) {
             if (exists(uniqueId)) {
                 Prestiges.update({ Prestiges.id eq uniqueId }) {
-                    it[data] = entry as Int
+                    it[level] = entry as Int
                 }
+                return@transaction
             }
             Prestiges.insert {
-                it[id]   = uniqueId
-                it[data] = entry as Int
-            }
-        }
-    }
-
-    override fun save(bulk: MutableMap<UUID?, Int>) {
-        val prestiges = bulk.filter { it.key != null }
-            .onEach { kguava.put(it.key!!, it.value) }
-            .map { Prestige(it.key!!, it.value) }
-        transaction(prestige.database) {
-            prestiges.forEach { prestige ->
-                if (exists(prestige.id)) {
-                    Prestiges.update({ Prestiges.id eq prestige.id }) {
-                        it[data] = prestige.data
-                    }
-                }
-                Prestiges.insert {
-                    it[id]   = prestige.id
-                    it[data] = prestige.data
-                }
+                it[id]    = uniqueId
+                it[level] = entry as Int
             }
         }
     }

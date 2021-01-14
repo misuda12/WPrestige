@@ -58,7 +58,6 @@ internal lateinit var kguava: Cache<Any, Any>
 
 @PublishedApi
 internal lateinit var api: PrestigeAPI
-    private set
 
 @PublishedApi
 internal lateinit var oneblock: AOneBlock
@@ -72,7 +71,6 @@ class PrestigeAddon : Addon(), CoroutineScope by MainScope() {
 
     val logger by lazy { KotlinLogging.logger("WPrestiges") }
     internal val session = UUID.randomUUID().toString()
-    private val separate = File.separator
 
     @PublishedApi
     internal var fisql: Database? = null
@@ -102,7 +100,7 @@ class PrestigeAddon : Addon(), CoroutineScope by MainScope() {
         bentobox = BentoBox.getInstance();
 
         kguava = CacheBuilder.newBuilder()
-            .expireAfterWrite(Long.MAX_VALUE, TimeUnit.DAYS)                                                            // Never expirable cache
+            .expireAfterWrite(Long.MAX_VALUE, TimeUnit.DAYS)
             .build()
 
         mesql = Database.connect(
@@ -116,8 +114,8 @@ class PrestigeAddon : Addon(), CoroutineScope by MainScope() {
     }
 
     override fun onLoad() {
-        if (!dataFolder.exists())
-            dataFolder.mkdir().also { logger.info { "[IO] dataFolder ~'${dataFolder.path}' created" } }
+        if (dataFolder.exists() == false)
+            dataFolder.mkdirs().also { logger.info { "[IO] dataFolder ~'${dataFolder.path}' created" } }
 
         super.onLoad()
     }
@@ -144,8 +142,10 @@ class PrestigeAddon : Addon(), CoroutineScope by MainScope() {
         registerListener(PhaseListener ())
         registerListener(PlayerListener())
         registerListener(RankUI())
+
         if (server.pluginManager.getPlugin("PlaceholderAPI") != null)
             PrestigePlaceholder.register()
+
         plugin.addonsManager.gameModeAddons.forEach { addon ->
             addon.playerCommand.ifPresent { PClaimCommand(this, it, "pclaim") }
             addon.adminCommand .ifPresent { SetPCommand(this, it, "setp") }
@@ -154,4 +154,5 @@ class PrestigeAddon : Addon(), CoroutineScope by MainScope() {
     }
 
     override fun onDisable() {  }
+
 }

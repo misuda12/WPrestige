@@ -24,18 +24,16 @@ package eu.warfaremc.prestige.model
 
 import org.jetbrains.exposed.sql.Table
 import java.io.Serializable
-import java.util.*
 
 object Prestiges : Table("t_prestiges") {
 
-    val id = uuid("id")
-    val data = integer("data").default(0)
+    val id = varchar("id", 64)
+    val level = integer("level").default(0)
     override val primaryKey: PrimaryKey
         get() = PrimaryKey(id, name = "PKPrestigesID")
-
 }
 
 data class Prestige(
-    val id: UUID,
+    val id: String,
     val data: Int = 0
 ) : Serializable

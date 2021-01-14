@@ -34,21 +34,19 @@ class SetPCommand(addon: Addon, parent: CompositeCommand, label: String) : Compo
         if (user == null || args.isNullOrEmpty())
             return false
         val player = addon.server.getPlayer(args[0]) ?: return false
-        var number = 0
-
+        val number: Int
         try {
             number = Integer.parseInt(args[1])
         } catch (exception: NumberFormatException) {
             user.sendMessage("[WPrestige] Invalid argument at position 1, expected integer.")
             return false
         }
-        val island = findIslandByPlayer(player.uniqueId);
-
-        if(island == null)
+        val island = findIslandByPlayer(player.uniqueId)
+        if(island == null) {
             user.sendMessage("[WPrestige] Player is not not part of an island")
-
+            return false
+        }
         api.setPrestige(island.uniqueId, number)
-
         user.sendMessage("[WPrestige] Prestige set to $number for user: " + player.displayName)
         return true
     }

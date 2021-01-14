@@ -24,10 +24,8 @@ package eu.warfaremc.prestige.listener
 
 import eu.warfaremc.prestige.addon
 import eu.warfaremc.prestige.api
-import me.clip.placeholderapi.PlaceholderAPI
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
-import world.bentobox.aoneblock.events.MagicBlockEvent
 import world.bentobox.aoneblock.events.MagicBlockPhaseEvent
 
 class PhaseListener : Listener {
@@ -39,24 +37,8 @@ class PhaseListener : Listener {
                 return
             if (!listOf(0, 11000, 11001).contains(blockNumber))
                 return
-            val player = addon.server.getPlayer(island.owner!!) ?: return
-            val number = api.addPrestige(island.owner)
-            player.sendMessage("§a§l(!) §7§nGRATULUJEME!§f §aTvůj ostrov dosáhl nové §7Prestige")
+            val number = api.addPrestige(island.uniqueId)
             addon.server.broadcastMessage("§a§l(!) §aOstrov §7${island.name} §a získal Prestige §7$number")
-        }
-    }
-
-    @EventHandler
-    fun MagicBlockEvent.on() {
-        if (playerUUID == null)
-            return
-        val number = api.getPrestige(playerUUID)
-        if (number != 0 && number > 0)
-            return
-        val player = addon.server.getPlayer(island.owner!!) ?: return
-        if (Integer.parseInt(PlaceholderAPI.setPlaceholders(player, "%aoneblock_my_island_count%")) > 1) {
-            api.setPrestige(playerUUID, 1)
-            player.sendMessage("§e§l(?) §7§nOPRAVA!§e §eAutomaticky jsme opravili tvůj Prestige na §7I")
         }
     }
 }

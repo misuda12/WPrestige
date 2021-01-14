@@ -24,15 +24,12 @@ package eu.warfaremc.prestige.model
 
 import eu.warfaremc.prestige.addon
 import eu.warfaremc.prestige.api
-import eu.warfaremc.prestige.api.PrestigeAPI
+import eu.warfaremc.prestige.miscellanneous.findIslandByPlayer
 import eu.warfaremc.prestige.miscellanneous.toRoman
 import me.clip.placeholderapi.expansion.PlaceholderExpansion
 import org.bukkit.entity.Player
 
 object PrestigePlaceholder : PlaceholderExpansion() {
-
-    val prestigeAPI: PrestigeAPI by lazy { api }
-
     override fun getIdentifier(): String
             = "wf"
 
@@ -44,11 +41,12 @@ object PrestigePlaceholder : PlaceholderExpansion() {
 
     override fun onPlaceholderRequest(player: Player?, params: String): String {
         if (player == null)
-            return ""
+            return "0"
         if (params == "prestige") {
-            return if (prestigeAPI.exists(player.uniqueId) && prestigeAPI.getPrestige(player.uniqueId) == 0) "0"
-            else toRoman(prestigeAPI.getPrestige(player.uniqueId)) ?: ""
+            val island = findIslandByPlayer(player.uniqueId) ?: return  "0"
+            val number = api.getPrestige(island.uniqueId)
+            return if (number == 0) "0" else toRoman(number) ?: "0"
         }
-        return super.onPlaceholderRequest(player, params)
+        return "0"
     }
 }
