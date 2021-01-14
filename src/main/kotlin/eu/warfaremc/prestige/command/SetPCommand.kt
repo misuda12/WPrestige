@@ -24,6 +24,7 @@ package eu.warfaremc.prestige.command
 
 import eu.warfaremc.prestige.addon
 import eu.warfaremc.prestige.api
+import eu.warfaremc.prestige.miscellanneous.findIslandByPlayer
 import world.bentobox.bentobox.api.addons.Addon
 import world.bentobox.bentobox.api.commands.CompositeCommand
 import world.bentobox.bentobox.api.user.User
@@ -34,13 +35,20 @@ class SetPCommand(addon: Addon, parent: CompositeCommand, label: String) : Compo
             return false
         val player = addon.server.getPlayer(args[0]) ?: return false
         var number = 0
+
         try {
             number = Integer.parseInt(args[1])
         } catch (exception: NumberFormatException) {
-            user.sendMessage("Expected number, got string")
+            user.sendMessage("[WPrestige] Invalid argument at position 1, expected integer.")
             return false
         }
-        api.setPrestige(player.uniqueId, number)
+        val island = findIslandByPlayer(player.uniqueId);
+
+        if(island == null)
+            user.sendMessage("[WPrestige] Player is not not part of an island")
+
+        api.setPrestige(island.uniqueId, number)
+
         user.sendMessage("[WPrestige] Prestige set to $number for user: " + player.displayName)
         return true
     }

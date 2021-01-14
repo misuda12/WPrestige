@@ -1,3 +1,9 @@
+package eu.warfaremc.prestige.miscellanneous
+
+import eu.warfaremc.prestige.bentobox
+import world.bentobox.bentobox.database.objects.Island
+import java.util.*
+
 /*
  * This file is part of WarfareMC, licensed under the MIT License.
  *
@@ -20,29 +26,9 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package eu.warfaremc.prestige.command
 
-import eu.warfaremc.prestige.addon
-import eu.warfaremc.prestige.api
-import world.bentobox.bentobox.api.addons.Addon
-import world.bentobox.bentobox.api.commands.CompositeCommand
-import world.bentobox.bentobox.api.user.User
-
-class SyncPCommand(addon: Addon, parent: CompositeCommand, label: String) : CompositeCommand(addon, parent, label) {
-    override fun execute(user: User?, label: String?, args: MutableList<String>?): Boolean {
-        if (user != null) {
-            val uuid = addon.server.getWorld("oneblock_world")?.let { islands.getIsland(it, user)?.owner } ?: return false
-            val number = api.getPrestige(uuid)
-            api.setPrestige(user.uniqueId, number)
-            user.sendMessage("§a§l(!) §aPrestige úspěšně synchronizována. §aNyní máš prestige §7$number")
-            return true
-        }
-        return false
-    }
-
-    override fun setup() {
-        isOnlyPlayer = true
-        description  = "Syncs WPrestige with your current island"
-        permission   = "wp.claim"                                                                                       // TODO: huh?
-    }
+fun findIslandByPlayer(player_uuid: UUID): Island? {
+    return bentobox.islands.islands.firstOrNull {
+        it.memberSet.contains(player_uuid) || (it.owner != null && it.owner!! == player_uuid)
+    };
 }

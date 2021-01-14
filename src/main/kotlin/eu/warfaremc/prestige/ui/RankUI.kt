@@ -24,8 +24,10 @@ package eu.warfaremc.prestige.ui
 
 import eu.warfaremc.prestige.addon
 import eu.warfaremc.prestige.api
+import eu.warfaremc.prestige.bentobox
 import eu.warfaremc.prestige.miscellanneous.toRoman
 import eu.warfaremc.prestige.model.extension.*
+import eu.warfaremc.prestige.oneblock
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.entity.Player
@@ -34,9 +36,7 @@ import org.bukkit.event.Listener
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.inventory.meta.ItemMeta
 import world.bentobox.aoneblock.AOneBlock
-import world.bentobox.bentobox.BentoBox
 import world.bentobox.bentobox.database.objects.Island
-import java.util.*
 
 class RankUI : Listener {
     companion object {
@@ -48,70 +48,83 @@ class RankUI : Listener {
 
             val islands = hashMapOf<Island, Int>()
             val inventory = Bukkit.createInventory(null, 54, "§b§l(!) §bOneBlock Top")
-            val oneblockInstance = addon.plugin.addonsManager.getAddonByName<AOneBlock>("AOneBlock").get()
 
-            BentoBox.getInstance().islands.islands.forEach { island ->
-                val prestige = api.getPrestige(UUID.fromString(island.uniqueId))
+            val item = item(Material.ACACIA_BOAT) {
+                meta<ItemMeta> {
 
-                if(prestige > 0)
-                    islands[island] = oneblockInstance.getOneBlocksIsland(island).blockNumber + ((api.getPrestige(UUID.fromString(island.uniqueId)) - 1) * 11000)
-                else
-                    islands[island] = oneblockInstance.getOneBlocksIsland(island).blockNumber
-            }
-
-            val sortedMap = islands.toSortedMap { i0, i1 ->
-                api.getPrestige(UUID.fromString(i0.uniqueId)) - api.getPrestige(UUID.fromString(i1.uniqueId))
-            }
-
-            var index = 0
-            val positions = arrayOf(13, 21, 22, 23, 29, 30, 31, 32, 33, 37, 38, 39, 40, 41, 42, 43).iterator()
-
-            sortedMap.entries.forEach { entry ->
-                if(!positions.hasNext())
-                    return
-
-                val material: Material = when {
-                    index == 0 -> Material.LIGHT_BLUE_STAINED_GLASS_PANE
-                    index <= 3 -> Material.YELLOW_STAINED_GLASS_PANE
-                    index <= 8 -> Material.ORANGE_STAINED_GLASS_PANE
-                    else -> Material.RED_STAINED_GLASS_PANE
                 }
-
-                if(entry.key.owner == null)
-                    return
-
-                val topicon = item(material) {
-                    meta<ItemMeta> {
-                        name = "§b§l(!) §b ${Bukkit.getOfflinePlayer(UUID.fromString(entry.key.owner.toString())).name}"
-
-                        stringLore = """
-                            
-                            §b    §b⚹ Místo: §7." + ${index + 1}
-                            §b    §b⚹ Vytěženo bloků: §7${entry.value}
-                            §b    §b⚹ Prestige: §7${toRoman(api.getPrestige(UUID.fromString(entry.key.uniqueId)))}
-                            
-                            §b§l(!) §7§nNavštívit ostrov
-                        """.trimIndent()
-                    }
-                }
-
-                inventory.setItem(positions.next(), topicon)
-                index++
             }
+          bentobox.islands.islands.forEach { island ->
+              val prestige = api.getPrestige(island.uniqueId)
 
-        }
-    }
+              if(prestige > 0)
+                  islands[island] = oneblock.getOneBlocksIsland(island).blockNumber + ((api.getPrestige(island.uniqueId) - 1) * 11000)
+              else
+                  islands[island] = oneblock.getOneBlocksIsland(island).blockNumber
+          }
 
-    @EventHandler
-    fun InventoryClickEvent.on() {
-        if (view.title == "§b§l(!) §bOneBlock Top") {
-            isCancelled = true
-            if (currentItem == null)
-                return
-            if (currentItem!!.type == Material.AIR)
-                return
-            if (currentItem!!.type.toString().contains("stained_glass_pane"))
-                addon.server.dispatchCommand(whoClicked, "ob warp ${rankMap[slot]}")
-        }
-    }
+          player?.sendMessage("Generating inventory")
+
+          val sortedMap = islands.toSortedMap { i0, i1 ->
+              api.getPrestige(i0.uniqueId) - api.getPrestige(i1.uniqueId)
+          }
+
+          var index = 0
+          val positions = arrayOf(13, 21, 22, 23, 29, 30, 31, 32, 33, 37, 38, 39, 40, 41, 42, 43).iterator()
+
+          println("has next ${positions.hasNext()}")
+          println("sorted map len ${sortedMap.size}")
+          println("raw map len ${islands.size}")
+
+          sortedMap.entries.forEach { entry ->
+              if(!positions.hasNext())
+                  return
+
+              val material: Material = when {
+                  index == 0 -> Material.LIGHT_BLUE_STAINED_GLASS_PANE
+                  index <= 3 -> Material.YELLOW_STAINED_GLASS_PANE
+                  index <= 8 -> Material.ORANGE_STAINED_GLASS_PANE
+                  else -> Material.RED_STAINED_GLASS_PANE
+              }
+
+              if(entry.key.owner == null)
+                  return
+
+              val topicon = item(material) {
+                  meta<ItemMeta> {
+                      name = "§b§l(!) §b ${Bukkit.getOfflinePlayer(UUID.fromString(entry.key.owner.toString())).name}"
+
+                      stringLore = """
+
+                          §b    §b⚹ Místo: §7." + ${index + 1}
+                          §b    §b⚹ Vytěženo bloků: §7${entry.value}
+                          §b    §b⚹ Prestige: §7${toRoman(api.getPrestige(entry.key.uniqueId))}
+
+                          §b§l(!) §7§nNavštívit ostrov
+                      """.trimIndent()
+                  }
+              }
+              inventory.setItem(positions.next(), topicon)
+              index++
+          }
+
+          player?.openInventory(inventory);
+          player?.sendMessage("Opened inventory")
+      }
+
+
+  }
+
+  @EventHandler
+  fun InventoryClickEvent.on() {
+      if (view.title == "§b§l(!) §bOneBlock Top") {
+          isCancelled = true
+          if (currentItem == null)
+              return
+          if (currentItem!!.type == Material.AIR)
+              return
+          if (currentItem!!.type.toString().contains("stained_glass_pane"))
+              addon.server.dispatchCommand(whoClicked, "ob warp ${rankMap[slot]}")
+      }
+  }
 }

@@ -29,7 +29,9 @@ import world.bentobox.bentobox.api.user.User
 
 class TopCommand(addon: Addon, parent: CompositeCommand, label: String) : CompositeCommand(addon, parent, label) {
     override fun execute(user: User?, label: String?, args: MutableList<String>?): Boolean {
+
         if (user != null) {
+            user.sendMessage("Opening menu")
             RankUI.openParticlesMenu(user.player)
             return true
         }

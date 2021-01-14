@@ -27,7 +27,6 @@ import com.google.common.cache.CacheBuilder
 import eu.warfaremc.prestige.api.PrestigeAPI
 import eu.warfaremc.prestige.command.PClaimCommand
 import eu.warfaremc.prestige.command.SetPCommand
-import eu.warfaremc.prestige.command.SyncPCommand
 import eu.warfaremc.prestige.command.TopCommand
 import eu.warfaremc.prestige.ui.RankUI
 import eu.warfaremc.prestige.listener.PhaseListener
@@ -41,6 +40,9 @@ import mu.KotlinLogging
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.transaction
+import world.bentobox.aoneblock.AOneBlock
+import world.bentobox.aoneblock.oneblocks.OneBlocksManager
+import world.bentobox.bentobox.BentoBox
 import java.io.File
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -56,6 +58,16 @@ internal lateinit var kguava: Cache<Any, Any>
 
 @PublishedApi
 internal lateinit var api: PrestigeAPI
+    private set
+
+@PublishedApi
+internal lateinit var oneblock: AOneBlock
+    private set
+
+@PublishedApi
+internal lateinit var bentobox: BentoBox
+    private set
+
 class PrestigeAddon : Addon(), CoroutineScope by MainScope() {
 
     val logger by lazy { KotlinLogging.logger("WPrestiges") }
@@ -87,6 +99,8 @@ class PrestigeAddon : Addon(), CoroutineScope by MainScope() {
 
     init {
         addon = this
+        bentobox = BentoBox.getInstance();
+
         kguava = CacheBuilder.newBuilder()
             .expireAfterWrite(Long.MAX_VALUE, TimeUnit.DAYS)                                                            // Never expirable cache
             .build()
@@ -98,11 +112,13 @@ class PrestigeAddon : Addon(), CoroutineScope by MainScope() {
             driver = "org.sqlite.JDBC"
         )
         api = PrestigeAPImpl(this)
+        oneblock = addon.plugin.addonsManager.getAddonByName<AOneBlock>("AOneBlock").get()
     }
 
     override fun onLoad() {
         if (!dataFolder.exists())
             dataFolder.mkdir().also { logger.info { "[IO] dataFolder ~'${dataFolder.path}' created" } }
+
         super.onLoad()
     }
     override fun onEnable() {
@@ -133,7 +149,6 @@ class PrestigeAddon : Addon(), CoroutineScope by MainScope() {
         plugin.addonsManager.gameModeAddons.forEach { addon ->
             addon.playerCommand.ifPresent { PClaimCommand(this, it, "pclaim") }
             addon.adminCommand .ifPresent { SetPCommand(this, it, "setp") }
-            addon.playerCommand.ifPresent { SyncPCommand(this, it, "syncp") }
             addon.playerCommand.ifPresent { TopCommand(this, it, "top") }
         }
     }

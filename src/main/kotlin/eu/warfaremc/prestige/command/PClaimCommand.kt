@@ -24,6 +24,9 @@ package eu.warfaremc.prestige.command
 
 import eu.warfaremc.prestige.addon
 import eu.warfaremc.prestige.api
+import eu.warfaremc.prestige.bentobox
+import eu.warfaremc.prestige.miscellanneous.findIslandByPlayer
+import eu.warfaremc.prestige.oneblock
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.inventory.ItemStack
@@ -35,7 +38,9 @@ import world.bentobox.bentobox.api.user.User
 class PClaimCommand(addon: Addon, parent: CompositeCommand, label: String) : CompositeCommand(addon, parent, label) {
     override fun execute(user: User?, label: String?, args: MutableList<String>?): Boolean {
         if (user != null) {
-            if (api.exists(user.uniqueId)) {
+            val island = findIslandByPlayer(user.uniqueId) ?: return true;
+
+            if (api.exists(island.uniqueId)) {
                 val number = api.getPrestige(user.uniqueId)
                 when {
                     number >= 2  -> {
