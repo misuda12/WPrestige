@@ -22,7 +22,7 @@
 
 package eu.warfaremc.prestige.model
 
-import eu.warfaremc.prestige.addons
+import eu.warfaremc.prestige.addon
 import eu.warfaremc.prestige.api.PrestigeAPI
 import eu.warfaremc.prestige.kguava
 import org.jetbrains.exposed.sql.*
@@ -30,7 +30,7 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.*
 import kotlin.collections.ArrayList
 
-internal class PrestigeAPImpl(val prestige: eu.warfaremc.prestige.PrestigeAddons) : PrestigeAPI {
+internal class PrestigeAPImpl(val prestige: eu.warfaremc.prestige.PrestigeAddon) : PrestigeAPI {
     override fun addPrestige(uniqueId: UUID?): Int {
         if (uniqueId == null)
             return 0
@@ -76,7 +76,7 @@ internal class PrestigeAPImpl(val prestige: eu.warfaremc.prestige.PrestigeAddons
 
     override fun getAll(): MutableList<Prestige> {
         val prestiges: ArrayList<Prestige> = arrayListOf()
-        transaction(addons.database) {
+        transaction(addon.database) {
             Prestiges.selectAll().map {
                 prestiges.add(
                     Prestige(

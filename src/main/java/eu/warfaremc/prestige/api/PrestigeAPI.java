@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import static eu.warfaremc.prestige.PrestigeAddonsKt.api;
+import static eu.warfaremc.prestige.PrestigeAddonKt.api;
 
 /**
  * The Prestige API is used handle some unsafes of WPrestige

@@ -22,7 +22,7 @@
 
 package eu.warfaremc.prestige.model
 
-import eu.warfaremc.prestige.addons
+import eu.warfaremc.prestige.addon
 import eu.warfaremc.prestige.api
 import eu.warfaremc.prestige.api.PrestigeAPI
 import eu.warfaremc.prestige.miscellanneous.toRoman
@@ -37,10 +37,10 @@ object PrestigePlaceholder : PlaceholderExpansion() {
             = "wf"
 
     override fun getAuthor(): String
-            = addons.description.authors.joinToString(", ")
+            = addon.description.authors.joinToString(", ")
 
     override fun getVersion(): String
-            = addons.description.version
+            = addon.description.version
 
     override fun onPlaceholderRequest(player: Player?, params: String): String {
         if (player == null)

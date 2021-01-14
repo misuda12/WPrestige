@@ -22,7 +22,7 @@
 
 package eu.warfaremc.prestige.command
 
-import eu.warfaremc.prestige.addons
+import eu.warfaremc.prestige.addon
 import eu.warfaremc.prestige.api
 import world.bentobox.bentobox.api.addons.Addon
 import world.bentobox.bentobox.api.commands.CompositeCommand
@@ -32,7 +32,7 @@ class SetPCommand(addon: Addon, parent: CompositeCommand, label: String) : Compo
     override fun execute(user: User?, label: String?, args: MutableList<String>?): Boolean {
         if (user == null || args.isNullOrEmpty())
             return false
-        val player = addons.server.getPlayer(args[0]) ?: return false
+        val player = addon.server.getPlayer(args[0]) ?: return false
         var number = 0
         try {
             number = Integer.parseInt(args[1])

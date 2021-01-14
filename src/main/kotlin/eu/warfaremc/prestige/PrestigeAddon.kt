@@ -29,7 +29,7 @@ import eu.warfaremc.prestige.command.PClaimCommand
 import eu.warfaremc.prestige.command.SetPCommand
 import eu.warfaremc.prestige.command.SyncPCommand
 import eu.warfaremc.prestige.command.TopCommand
-import eu.warfaremc.prestige.listener.GUI
+import eu.warfaremc.prestige.ui.RankUI
 import eu.warfaremc.prestige.listener.PhaseListener
 import eu.warfaremc.prestige.listener.PlayerListener
 import eu.warfaremc.prestige.model.PrestigeAPImpl
@@ -48,7 +48,7 @@ import java.util.concurrent.TimeUnit
 import world.bentobox.bentobox.api.addons.Addon
 
 @PublishedApi
-internal lateinit var addons: PrestigeAddons
+internal lateinit var addon: PrestigeAddon
     private set
 
 @PublishedApi
@@ -61,7 +61,7 @@ internal lateinit var configuration: FileConfiguration
 
 @PublishedApi
 internal lateinit var api: PrestigeAPI
-open class PrestigeAddons : Addon(), CoroutineScope by MainScope() {
+open class PrestigeAddon : Addon(), CoroutineScope by MainScope() {
 
     val logger by lazy { KotlinLogging.logger("WPrestiges") }
     internal val session = UUID.randomUUID().toString()
@@ -133,7 +133,7 @@ open class PrestigeAddons : Addon(), CoroutineScope by MainScope() {
 
         registerListener(PhaseListener ())
         registerListener(PlayerListener())
-        registerListener(GUI())
+        registerListener(RankUI())
         if (server.pluginManager.getPlugin("PlaceholderAPI") != null)
             PrestigePlaceholder.register()
         plugin.addonsManager.gameModeAddons.forEach { addon ->
