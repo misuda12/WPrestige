@@ -22,7 +22,6 @@
 
 package eu.warfaremc.prestige.model
 
-import eu.warfaremc.prestige.addon
 import eu.warfaremc.prestige.api.PrestigeAPI
 import eu.warfaremc.prestige.kguava
 import org.jetbrains.exposed.sql.*
@@ -37,10 +36,17 @@ internal class PrestigeAPImpl(val prestige: eu.warfaremc.prestige.PrestigeAddon)
         val number = getPrestige(uniqueId) + 1
         kguava.put(uniqueId, number)
         transaction(prestige.database) {
-            Prestiges.update({ Prestiges.id eq uniqueId }) {
-                with(SqlExpressionBuilder) {
-                    it[data] = data + 1                                                                                 // TODO: Possible inconsistency ?
+            if (exists(uniqueId)) {
+                Prestiges.update({ Prestiges.id eq uniqueId }) {
+                    with(SqlExpressionBuilder) {
+                        it[data] = data + 1                                                                                 // TODO: Possible inconsistency ?
+                    }
                 }
+                return@transaction
+            }
+            Prestiges.insertIgnore {
+                it[id] = uniqueId
+                it[data] = number
             }
         }
         return number
@@ -54,6 +60,11 @@ internal class PrestigeAPImpl(val prestige: eu.warfaremc.prestige.PrestigeAddon)
             return
         kguava.put(uniqueId, number)
         if (save) transaction(prestige.database) {
+            if (exists(uniqueId)) {
+                Prestiges.update({ Prestiges.id eq uniqueId }) {
+                    it[data] = number
+                }
+            }
             Prestiges.insertUpdate(Prestige(uniqueId, number)) { insert, it ->
                 insert[id]   = it.id
                 insert[data] = it.data
@@ -76,7 +87,7 @@ internal class PrestigeAPImpl(val prestige: eu.warfaremc.prestige.PrestigeAddon)
 
     override fun getAll(): MutableList<Prestige> {
         val prestiges: ArrayList<Prestige> = arrayListOf()
-        transaction(addon.database) {
+        transaction(prestige.database) {
             Prestiges.selectAll().map {
                 prestiges.add(
                     Prestige(
@@ -118,7 +129,12 @@ internal class PrestigeAPImpl(val prestige: eu.warfaremc.prestige.PrestigeAddon)
             return
         val entry = kguava.getIfPresent(uniqueId) ?: return
         transaction(prestige.database) {
-            Prestiges.insertUpdate(Prestige(uniqueId, entry as Int), listOf(Prestiges.id, Prestiges.data)) { insert, it ->
+            if (exists(uniqueId)) {
+                Prestiges.update({ Prestiges.id eq uniqueId }) {
+                    it[data] = entry as Int
+                }
+            }
+            Prestiges.insertUpdate(Prestige(uniqueId, entry as Int)) { insert, it ->
                 insert[id]   = it.id
                 insert[data] = it.data
             }
@@ -130,6 +146,17 @@ internal class PrestigeAPImpl(val prestige: eu.warfaremc.prestige.PrestigeAddon)
             .onEach { kguava.put(it.key!!, it.value) }
             .map { Prestige(it.key!!, it.value) }
         transaction(prestige.database) {
+            prestiges.forEach { prestige ->
+                if (exists(prestige.id)) {
+                    Prestiges.update({ Prestiges.id eq prestige.id }) {
+                        it[data] = prestige.data
+                    }
+                }
+                Prestiges.insertUpdate(Prestige(prestige.id, prestige.data)) { insert, it ->
+                    insert[id]   = it.id
+                    insert[data] = it.data
+                }
+            }
             Prestiges.batchInsertUpdate(prestiges, listOf(Prestiges.id, Prestiges.data)) { batch, it ->
                 batch[id]   = it.id
                 batch[data] = it.data

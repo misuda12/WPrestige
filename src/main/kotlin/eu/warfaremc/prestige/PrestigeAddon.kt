@@ -56,10 +56,6 @@ internal lateinit var kguava: Cache<Any, Any>
     private set
 
 @PublishedApi
-internal lateinit var configuration: FileConfiguration
-    private set
-
-@PublishedApi
 internal lateinit var api: PrestigeAPI
 class PrestigeAddon : Addon(), CoroutineScope by MainScope() {
 
@@ -94,18 +90,12 @@ class PrestigeAddon : Addon(), CoroutineScope by MainScope() {
         kguava = CacheBuilder.newBuilder()
             .expireAfterWrite(Long.MAX_VALUE, TimeUnit.DAYS)                                                            // Never expirable cache
             .build()
-        if (dataFolder.exists() == false)
-            dataFolder.mkdir().also { logger.info { "[IO] dataFolder ~'${dataFolder.path}' created" } }
         mesql = Database.connect(
             url = "jdbc:sqlite::memory:",
             user = "proxy",
             password = session,
             driver = "org.sqlite.JDBC"
         )
-        val file = File("$dataFolder$separate/config.yml")
-        if (file.exists() == false)
-            saveDefaultConfig()
-        configuration = config
         api = PrestigeAPImpl(this)
     }
 
@@ -128,8 +118,6 @@ class PrestigeAddon : Addon(), CoroutineScope by MainScope() {
         }
         logger.warn { "Using primary database: '${database.url}, productName: ${database.vendor}, " +
                 "productVersion: ${database.version}, logger: $logger, dialect: ${database.dialect}'" }
-
-
 
         registerListener(PhaseListener ())
         registerListener(PlayerListener())

@@ -27,6 +27,7 @@ import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.Transaction
 import org.jetbrains.exposed.sql.statements.BatchInsertStatement
 import org.jetbrains.exposed.sql.transactions.TransactionManager
+import java.sql.ResultSet
 
 class BatchInsertUpdateOnDuplicate(table: Table, val onDupUpdate: List<Column<*>>) : BatchInsertStatement(table, false) {
     override fun prepareSQL(transaction: Transaction): String {
@@ -53,3 +54,12 @@ fun <T : Table, E> T.insertUpdate(
     duplicate: List<Column<*>> = this.columns,
     body: T.(BatchInsertUpdateOnDuplicate, E) -> Unit
 ) { batchInsertUpdate(listOf(data), duplicate, body) }
+
+fun <T:Any> String.executeSQL(transform : (ResultSet) -> T) : List<T> {
+    val result = arrayListOf<T>()
+    TransactionManager.current().exec(this) { rs ->
+        while (rs.next())
+            result += transform(rs)
+    }
+    return result
+}

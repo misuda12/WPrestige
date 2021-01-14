@@ -30,7 +30,7 @@ object Prestiges : Table("t_prestiges") {
 
     val id = uuid("id")
     val data = integer("data").default(0)
-    override val primaryKey: PrimaryKey?
+    override val primaryKey: PrimaryKey
         get() = PrimaryKey(id, name = "PKPrestigesID")
 
 }
