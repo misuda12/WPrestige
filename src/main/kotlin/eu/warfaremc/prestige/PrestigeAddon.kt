@@ -42,7 +42,6 @@ import kotlinx.coroutines.MainScope
 import mu.KotlinLogging
 import net.kyori.adventure.platform.bukkit.BukkitAudiences
 import org.bukkit.command.CommandSender
-import org.bukkit.plugin.Plugin
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.transaction
