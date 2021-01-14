@@ -84,7 +84,7 @@ fun openParticlesMenu(player: Player?) {
                     meta<ItemMeta> {
                         val a0 = result.getOrNull()!!.first.owner ?: return@forEachIndexed
                         val a1 =
-                            addon.server.getOfflinePlayer(UUID.fromString(player.toString())).name ?: "Unknown"
+                            addon.server.getOfflinePlayer(UUID.fromString(a0.toString())).name ?: "Unknown"
                         name = "§b§l(!) §b $a1"
                         stringLore = """
                                     §b    §b⚹ Místo: §7${index + 1}
