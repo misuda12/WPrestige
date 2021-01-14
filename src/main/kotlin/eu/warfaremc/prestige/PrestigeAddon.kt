@@ -131,41 +131,12 @@ class PrestigeAddon : Addon(), CoroutineScope by MainScope() {
             driver = "org.sqlite.JDBC"
         )
         api = PrestigeAPImpl(this)
-        oneblock = addon.plugin.addonsManager.getAddonByName<AOneBlock>("AOneBlock").get()
+
     }
 
     override fun onLoad() {
         if (dataFolder.exists() == false)
             dataFolder.mkdirs().also { logger.info { "[IO] dataFolder ~'${dataFolder.path}' created" } }
-
-        super.onLoad()
-    }
-    override fun onEnable() {
-        if (::api.isInitialized == false)
-            api = PrestigeAPImpl(this)
-        val fisqlResult = kotlin.runCatching {
-            fisql = Database.connect(
-                url = "jdbc:sqlite:$dataFolder${File.separator}prestige.db",
-                driver = "org.sqlite.JDBC"
-            )
-            logger.info("Connected to ${fisql!!.url}, productName: ${fisql!!.vendor}, " +
-                    "productVersion: ${fisql!!.version}, logger: $logger, dialect: ${fisql!!.dialect}")
-        }
-        if (fisqlResult.isFailure)
-            logger.error { "Failed to initialize database: 'fisql@jdbc:sqlite:$dataFolder${File.separator}prestige.db'" }
-                .also { logger.error { fisqlResult.exceptionOrNull() } }
-        transaction(database) {
-            SchemaUtils.create(Prestiges)
-        }
-        logger.warn { "Using primary database: '${database.url}, productName: ${database.vendor}, " +
-                "productVersion: ${database.version}, logger: $logger, dialect: ${database.dialect}'" }
-
-        registerListener(PhaseListener ())
-        registerListener(PlayerListener())
-        registerListener(RankUI())
-
-        if (server.pluginManager.getPlugin("PlaceholderAPI") != null)
-            PrestigePlaceholder.register()
 
         // Command CommandFramework
         val executionCoordinatorFunction =
@@ -212,6 +183,40 @@ class PrestigeAddon : Addon(), CoroutineScope by MainScope() {
             commandAnnotation.parse(this)
             logger.info { "Successfully installed CommandFramework Cloud 1.3" }
         }
+        super.onLoad()
+    }
+    override fun onEnable() {
+
+        oneblock = addon.plugin.addonsManager.getAddonByName<AOneBlock>("AOneBlock").get()
+
+        if (::api.isInitialized == false)
+            api = PrestigeAPImpl(this)
+        val fisqlResult = kotlin.runCatching {
+            fisql = Database.connect(
+                url = "jdbc:sqlite:$dataFolder${File.separator}prestige.db",
+                driver = "org.sqlite.JDBC"
+            )
+            logger.info("Connected to ${fisql!!.url}, productName: ${fisql!!.vendor}, " +
+                    "productVersion: ${fisql!!.version}, logger: $logger, dialect: ${fisql!!.dialect}")
+        }
+        if (fisqlResult.isFailure)
+            logger.error { "Failed to initialize database: 'fisql@jdbc:sqlite:$dataFolder${File.separator}prestige.db'" }
+                .also { logger.error { fisqlResult.exceptionOrNull() } }
+        transaction(database) {
+            SchemaUtils.create(Prestiges)
+        }
+        logger.warn { "Using primary database: '${database.url}, productName: ${database.vendor}, " +
+                "productVersion: ${database.version}, logger: $logger, dialect: ${database.dialect}'" }
+
+        registerListener(PhaseListener ())
+        registerListener(PlayerListener())
+        registerListener(RankUI())
+
+        if (server.pluginManager.getPlugin("PlaceholderAPI") != null)
+            PrestigePlaceholder.register()
+
+
+
     }
 
     override fun onDisable() {  }

@@ -58,15 +58,17 @@ class RankUI : Listener {
             }
 
             val sortedMap = islands.toSortedMap { i0, i1 ->
-                api.getPrestige(i0.uniqueId) - api.getPrestige(i1.uniqueId)
+                  api.getPrestige(i1.uniqueId) - api.getPrestige(i0.uniqueId)
             }
 
             var index = 0
             val trianglePositions = arrayOf(13, 21, 22, 23, 29, 30, 31, 32, 33, 37, 38, 39, 40, 41, 42, 43).iterator();
 
-            sortedMap.entries.forEach { entry ->
+            println(sortedMap.size)
+
+            sortedMap.entries.stream().forEach { entry ->
                 if (!trianglePositions.hasNext())
-                    return
+                    return@forEach
                 val material: Material = when {
                     index == 0 -> Material.LIGHT_BLUE_STAINED_GLASS_PANE
                     index <= 3 -> Material.YELLOW_STAINED_GLASS_PANE
@@ -74,7 +76,7 @@ class RankUI : Listener {
                     else -> Material.RED_STAINED_GLASS_PANE
                 }
                 if (entry.key.owner == null)
-                    return
+                    return@forEach
 
                 val topicon = item(material) {
                     meta<ItemMeta> {
@@ -85,8 +87,7 @@ class RankUI : Listener {
                           §b    §b⚹ Místo: §7${index + 1}
                           §b    §b⚹ Vytěženo bloků: §7${entry.value}
                           §b    §b⚹ Prestige: §7${toRoman(api.getPrestige(entry.key.uniqueId))}
-
-                          §b§l(!) §7§nNavštívit ostrov
+                          
                       """.trimIndent()
                     }
                 }
@@ -95,7 +96,10 @@ class RankUI : Listener {
                 index++
             }
 
-      }
+            Bukkit.getServer().scheduler.callSyncMethod(bentobox) {
+                player?.openInventory(inventory);
+            }
+        }
 
 
   }
