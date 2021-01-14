@@ -38,7 +38,6 @@ import eu.warfaremc.prestige.model.Prestiges
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.MainScope
 import mu.KotlinLogging
-import org.bukkit.configuration.file.FileConfiguration
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -87,6 +86,7 @@ class PrestigeAddon : Addon(), CoroutineScope by MainScope() {
     }
 
     init {
+        addon = this
         kguava = CacheBuilder.newBuilder()
             .expireAfterWrite(Long.MAX_VALUE, TimeUnit.DAYS)                                                            // Never expirable cache
             .build()
@@ -97,14 +97,12 @@ class PrestigeAddon : Addon(), CoroutineScope by MainScope() {
             password = session,
             driver = "org.sqlite.JDBC"
         )
-
         api = PrestigeAPImpl(this)
     }
 
     override fun onLoad() {
         if (!dataFolder.exists())
             dataFolder.mkdir().also { logger.info { "[IO] dataFolder ~'${dataFolder.path}' created" } }
-
         super.onLoad()
     }
     override fun onEnable() {
