@@ -33,7 +33,7 @@ apply plugin: 'com.github.johnrengelman.shadow'
 
 group 'eu.warfaremc.prestige'
 version '1.0-SNAPSHOT'
-description = 'Addon for BentoBox used for @WarfareMC'
+description = 'Addon for BentoBox used by @WarfareMC'
 
 sourceCompatibility = 1.11
 java.sourceCompatibility = JavaVersion.VERSION_11
