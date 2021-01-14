@@ -56,6 +56,7 @@ import cloud.commandframework.meta.CommandMeta
 import cloud.commandframework.arguments.parser.ParserParameters
 import cloud.commandframework.kotlin.extension.buildAndRegister
 import eu.warfaremc.prestige.miscellanneous.findIslandByPlayer
+import eu.warfaremc.prestige.ui.openParticlesMenu
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.entity.Player
@@ -310,7 +311,7 @@ class PrestigeAddon : Addon(), CoroutineScope by MainScope() {
     fun commandTop(
         @NotNull sender: Player,
     ) {
-        RankUI.openParticlesMenu(sender)
+        openParticlesMenu(sender)
     }
 
     @CommandMethod("prestige help [query]")

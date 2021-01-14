@@ -22,12 +22,12 @@
 
 package eu.warfaremc.prestige.ui
 
+import eu.warfaremc.prestige.addon
 import eu.warfaremc.prestige.api
-import eu.warfaremc.prestige.bentobox
 import eu.warfaremc.prestige.miscellanneous.toRoman
+import eu.warfaremc.prestige.model.Prestige
 import eu.warfaremc.prestige.model.extension.*
 import eu.warfaremc.prestige.oneblock
-import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
@@ -35,78 +35,67 @@ import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.inventory.meta.ItemMeta
+import org.jetbrains.exposed.sql.transactions.transaction
 import world.bentobox.bentobox.database.objects.Island
 import java.util.*
 
 class RankUI : Listener {
-    companion object {
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    fun InventoryClickEvent.on() {
+        if (view.title == "§b§l(!) §bOneBlock Top")
+            isCancelled = true
+    }
+}
 
-        val rankMap = hashMapOf<Int, String>()
-
-        fun openParticlesMenu(player: Player?) {
-            val islands = hashMapOf<Island, Int>()
-
-            val inventory = Bukkit.createInventory(null, 54, "§b§l(!) §bOneBlock Top")
-
-            bentobox.islands.islands.forEach { island ->
-                val prestige = api.getPrestige(island.uniqueId)
-
-                if (prestige > 1)
-                    islands[island] = oneblock.getOneBlocksIsland(island).blockNumber + ((api.getPrestige(island.uniqueId) - 1) * 11000)
-                else
-                    islands[island] = oneblock.getOneBlocksIsland(island).blockNumber
+fun openParticlesMenu(player: Player?) {
+    if (player == null)
+        return
+    val inventory = inventory(rows = 9, title = "§b§l(!) §bOneBlock Top") {
+        val triangle = listOf(13, 21, 22, 23, 29, 30, 31, 32, 33, 37, 38, 39, 40, 41, 42, 43)
+        val border = item(Material.BLACK_STAINED_GLASS_PANE) {
+            meta<ItemMeta> {
+                name = ""
             }
-
-            val sortedMap = islands.toSortedMap { i0, i1 ->
-                  api.getPrestige(i1.uniqueId) - api.getPrestige(i0.uniqueId)
+        }
+        var list: List<Prestige> = emptyList()
+        transaction(addon.database) {
+            list = api.all
+        }
+        list.sortedBy { it.data }
+        this[13] = border
+        this[all except slots(21 to 23, 29 to 33, 37 to 43)] = border
+        triangle.forEachIndexed { index, position ->
+            val result: Result<Triple<Island, Int, Int>> = kotlin.runCatching {
+                val entry = list[index]
+                val island = oneblock.islands.getIslandById(entry.id)
+                val blockNumber =
+                    if (entry.data > 1) oneblock.getOneBlocksIsland(island.get()).blockNumber + ((entry.data - 1) * 11000)
+                    else oneblock.getOneBlocksIsland(island.orElseThrow()).blockNumber
+                Triple(island.get(), blockNumber, entry.data)
             }
-
-            var index = 0
-            val trianglePositions = arrayOf(13, 21, 22, 23, 29, 30, 31, 32, 33, 37, 38, 39, 40, 41, 42, 43).iterator();
-
-            println(sortedMap.size)
-
-            sortedMap.entries.stream().forEach { entry ->
-                if (!trianglePositions.hasNext())
-                    return@forEach
+            if (result.isSuccess) {
                 val material: Material = when {
                     index == 0 -> Material.LIGHT_BLUE_STAINED_GLASS_PANE
                     index <= 3 -> Material.YELLOW_STAINED_GLASS_PANE
                     index <= 8 -> Material.ORANGE_STAINED_GLASS_PANE
                     else -> Material.RED_STAINED_GLASS_PANE
                 }
-                if (entry.key.owner == null)
-                    return@forEach
-
-                val topicon = item(material) {
+                val item = item(material) {
                     meta<ItemMeta> {
-                        name =
-                            "§b§l(!) §b ${Bukkit.getOfflinePlayer(UUID.fromString(entry.key.owner.toString())).name}"
+                        val a0 = result.getOrNull()!!.first.owner ?: return@forEachIndexed
+                        val a1 =
+                            addon.server.getOfflinePlayer(UUID.fromString(player.toString())).name ?: "Unknown"
+                        name = "§b§l(!) §b $a1"
                         stringLore = """
-
-                          §b    §b⚹ Místo: §7${index + 1}
-                          §b    §b⚹ Vytěženo bloků: §7${entry.value}
-                          §b    §b⚹ Prestige: §7${toRoman(api.getPrestige(entry.key.uniqueId))}
-                          
-                      """.trimIndent()
+                                    §b    §b⚹ Místo: §7${index + 1}
+                                    §b    §b⚹ Vytěženo bloků: §7${result.getOrNull()!!.second}
+                                    §b    §b⚹ Prestige: §7${toRoman(result.getOrNull()!!.third)}
+                                """.trimIndent()
                     }
                 }
-
-                inventory.setItem(trianglePositions.next(), topicon)
-                index++
-            }
-
-            Bukkit.getServer().scheduler.callSyncMethod(bentobox) {
-                player?.openInventory(inventory);
+                this[position] = item
             }
         }
-
-
-  }
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    fun InventoryClickEvent.on() {
-        if (view.title == "§b§l(!) §bOneBlock Top")
-            isCancelled = true
     }
-
+    inventory.openTo(player)
 }
