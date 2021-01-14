@@ -187,9 +187,7 @@ class PrestigeAddon : Addon(), CoroutineScope by MainScope() {
         super.onLoad()
     }
     override fun onEnable() {
-
         oneblock = addon.plugin.addonsManager.getAddonByName<AOneBlock>("AOneBlock").get()
-
         if (::api.isInitialized == false)
             api = PrestigeAPImpl(this)
         val fisqlResult = kotlin.runCatching {
@@ -215,9 +213,6 @@ class PrestigeAddon : Addon(), CoroutineScope by MainScope() {
 
         if (server.pluginManager.getPlugin("PlaceholderAPI") != null)
             PrestigePlaceholder.register()
-
-
-
     }
 
     override fun onDisable() {  }

@@ -50,7 +50,7 @@ class RankUI : Listener {
 fun openParticlesMenu(player: Player?) {
     if (player == null)
         return
-    val inventory = inventory(rows = 9, title = "§b§l(!) §bOneBlock Top") {
+    val inventory = inventory(rows = 6, title = "§b§l(!) §bOneBlock Top") {
         val triangle = listOf(13, 21, 22, 23, 29, 30, 31, 32, 33, 37, 38, 39, 40, 41, 42, 43)
         val border = item(Material.BLACK_STAINED_GLASS_PANE) {
             meta<ItemMeta> {
@@ -62,8 +62,7 @@ fun openParticlesMenu(player: Player?) {
             list = api.all
         }
         list.sortedBy { it.data }
-        this[13] = border
-        this[all except slots(21 to 23, 29 to 33, 37 to 43)] = border
+        all.forEach { this[it] = border }
         triangle.forEachIndexed { index, position ->
             val result: Result<Triple<Island, Int, Int>> = kotlin.runCatching {
                 val entry = list[index]
@@ -73,6 +72,8 @@ fun openParticlesMenu(player: Player?) {
                     else oneblock.getOneBlocksIsland(island.orElseThrow()).blockNumber
                 Triple(island.get(), blockNumber, entry.data)
             }
+            if (result.isFailure)
+                return@forEachIndexed
             if (result.isSuccess) {
                 val material: Material = when {
                     index == 0 -> Material.LIGHT_BLUE_STAINED_GLASS_PANE
