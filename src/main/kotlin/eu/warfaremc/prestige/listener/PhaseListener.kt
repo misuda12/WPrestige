@@ -24,6 +24,8 @@ package eu.warfaremc.prestige.listener
 
 import eu.warfaremc.prestige.addon
 import eu.warfaremc.prestige.api
+import eu.warfaremc.prestige.miscellanneous.findNameByIsland
+import org.bukkit.Bukkit
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import world.bentobox.aoneblock.events.MagicBlockPhaseEvent
@@ -37,9 +39,11 @@ class PhaseListener : Listener {
                 return
             if (!listOf(0, 11000, 11001).contains(blockNumber))
                 return
+
             val number = api.addPrestige(island.uniqueId)
-            val player = island.owner?.let { island.owner ?: playerUUID?.let { registry -> addon.server.getPlayer(registry) }}
-            addon.server.broadcastMessage("§a§l(!) §aOstrov §7${island.name ?: player ?: "Unnamed"} §a získal Prestige §7$number")
+            val name = findNameByIsland(island);
+
+            addon.server.broadcastMessage("§a§l(!) §aOstrov§7 $name §azískal Prestige §7$number")
         }
     }
 }
