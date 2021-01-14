@@ -58,8 +58,7 @@ import cloud.commandframework.meta.CommandMeta
 
 import cloud.commandframework.arguments.parser.ParserParameters
 import cloud.commandframework.kotlin.extension.buildAndRegister
-
-
+import java.lang.RuntimeException
 @PublishedApi
 internal lateinit var addon: PrestigeAddon
     private set
@@ -129,16 +128,21 @@ class PrestigeAddon : Addon(), CoroutineScope by MainScope() {
             driver = "org.sqlite.JDBC"
         )
         api = PrestigeAPImpl(this)
-        oneblock = addon.plugin.addonsManager.getAddonByName<AOneBlock>("AOneBlock").get()
     }
 
     override fun onLoad() {
-        if (dataFolder.exists() == false)
+        if (!dataFolder.exists())
             dataFolder.mkdirs().also { logger.info { "[IO] dataFolder ~'${dataFolder.path}' created" } }
 
         super.onLoad()
     }
     override fun onEnable() {
+
+        oneblock = bentobox.addonsManager.getAddonByName<AOneBlock>("AOneBlock")
+            .orElseThrow {
+                RuntimeException("Missing addon AOneBlock")
+            };
+
         if (::api.isInitialized == false)
             api = PrestigeAPImpl(this)
         val fisqlResult = kotlin.runCatching {
@@ -179,7 +183,7 @@ class PrestigeAddon : Addon(), CoroutineScope by MainScope() {
             logger.error { "Failed to initialize CommandFramework::CommandManager" }
         }
         finally {
-            audiences = BukkitAudiences::class.java.getMethod("create", Plugin::class.java).invoke(null, this) as BukkitAudiences
+            audiences = BukkitAudiences::class.java.getMethod("create", Plugin::class.java).invoke(null, bentobox) as BukkitAudiences
             commandHelp = MinecraftHelp("/prestige help", audiences::sender, commandManager)
             if (commandManager.queryCapability(CloudBukkitCapabilities.BRIGADIER))
                 commandManager.registerBrigadier()

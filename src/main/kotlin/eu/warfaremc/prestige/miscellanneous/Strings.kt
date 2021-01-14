@@ -23,7 +23,10 @@
 package eu.warfaremc.prestige.miscellanneous
 
 fun toRoman(number: Int): String? {
-    return String(CharArray(number)).replace('\u0000', 'I')
+    return if(number < 1)
+        number.toString()
+    else
+        String(CharArray(number)).replace('\u0000', 'I')
         .replace("IIIII", "V")
         .replace("IIII", "IV")
         .replace("VV", "X")
