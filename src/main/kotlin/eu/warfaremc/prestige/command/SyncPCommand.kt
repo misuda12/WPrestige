@@ -22,7 +22,7 @@
 
 package eu.warfaremc.prestige.command
 
-import eu.warfaremc.prestige.addons
+import eu.warfaremc.prestige.addon
 import eu.warfaremc.prestige.api
 import world.bentobox.bentobox.api.addons.Addon
 import world.bentobox.bentobox.api.commands.CompositeCommand
@@ -31,7 +31,7 @@ import world.bentobox.bentobox.api.user.User
 class SyncPCommand(addon: Addon, parent: CompositeCommand, label: String) : CompositeCommand(addon, parent, label) {
     override fun execute(user: User?, label: String?, args: MutableList<String>?): Boolean {
         if (user != null) {
-            val uuid = addons.server.getWorld("oneblock_world")?.let { islands.getIsland(it, user)?.owner } ?: return false
+            val uuid = addon.server.getWorld("oneblock_world")?.let { islands.getIsland(it, user)?.owner } ?: return false
             val number = api.getPrestige(uuid)
             api.setPrestige(user.uniqueId, number)
             user.sendMessage("§a§l(!) §aPrestige úspěšně synchronizována. §aNyní máš prestige §7$number")

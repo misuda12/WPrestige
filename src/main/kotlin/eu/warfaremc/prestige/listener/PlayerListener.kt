@@ -22,7 +22,7 @@
 
 package eu.warfaremc.prestige.listener
 
-import eu.warfaremc.prestige.addons
+import eu.warfaremc.prestige.addon
 import eu.warfaremc.prestige.api
 import eu.warfaremc.prestige.kguava
 import org.bukkit.event.EventHandler
@@ -58,35 +58,35 @@ class PlayerListener : Listener {
     @EventHandler
     fun TeamJoinEvent.on() {
         api.setPrestige(playerUUID, api.getPrestige(owner))
-        val player = addons.server.getPlayer(playerUUID) ?: return
+        val player = addon.server.getPlayer(playerUUID) ?: return
         player.sendMessage("§b§l(!) §bPrestige byla synchronizována.")
     }
 
     @EventHandler
     fun TeamQuitEvent.on() {
         api.remove(playerUUID)
-        val player = addons.server.getPlayer(playerUUID) ?: return
+        val player = addon.server.getPlayer(playerUUID) ?: return
         player.sendMessage("§b§l(!) §bPrestige byla nastavena na §70§b, jelikož jsi opustil ostrov.")
     }
 
     @EventHandler
     fun TeamKickEvent.on() {
         api.remove(playerUUID)
-        val player = addons.server.getPlayer(playerUUID) ?: return
+        val player = addon.server.getPlayer(playerUUID) ?: return
         player.sendMessage("§b§l(!) §bPrestige byla nastavena na §70§b, jelikož jsi opustil ostrov.")
     }
 
     @EventHandler
     fun IslandResetEvent.on() {
         api.remove(playerUUID)
-        val player = addons.server.getPlayer(playerUUID) ?: return
+        val player = addon.server.getPlayer(playerUUID) ?: return
         player.sendMessage("§b§l(!) §bPrestige byla nastavena na §70§b, jelikož jsi opustil ostrov.")
     }
 
     @EventHandler
     fun IslandDeletedEvent.on() {
         api.remove(playerUUID)
-        val player = addons.server.getPlayer(playerUUID) ?: return
+        val player = addon.server.getPlayer(playerUUID) ?: return
         player.sendMessage("§b§l(!) §bPrestige byla nastavena na §70§b, jelikož jsi opustil ostrov.")
     }
 }

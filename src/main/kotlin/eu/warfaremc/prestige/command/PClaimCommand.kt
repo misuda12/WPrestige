@@ -22,7 +22,7 @@
 
 package eu.warfaremc.prestige.command
 
-import eu.warfaremc.prestige.addons
+import eu.warfaremc.prestige.addon
 import eu.warfaremc.prestige.api
 import org.bukkit.Bukkit
 import org.bukkit.Material
@@ -41,31 +41,31 @@ class PClaimCommand(addon: Addon, parent: CompositeCommand, label: String) : Com
                     number >= 2  -> {
                         if (user.hasPermission("prestige.2"))
                             return false
-                        addons.server.dispatchCommand(Bukkit.getConsoleSender(), "lp user ${user.name} perm set prestige.2")
-                        addons.server.dispatchCommand(Bukkit.getConsoleSender(), "lp user ${user.name} perm set cmi.command.warp.pvp")
+                        addon.server.dispatchCommand(Bukkit.getConsoleSender(), "lp user ${user.name} perm set prestige.2")
+                        addon.server.dispatchCommand(Bukkit.getConsoleSender(), "lp user ${user.name} perm set cmi.command.warp.pvp")
                         user.sendMessage("§a§l(!) §7§nGRATULUJEME!§f §aPrávě jsi odemkl §7/warp pvp")
                     }
                     number >= 3  -> {
                         if (user.hasPermission("prestige.3.new"))
                             return false
-                        addons.server.dispatchCommand(Bukkit.getConsoleSender(), "lp user ${user.name} perm set prestige.3.new")
-                        addons.server.dispatchCommand(Bukkit.getConsoleSender(), "lp user ${user.name} perm set enchantgui.enchant")
-                        addons.server.dispatchCommand(Bukkit.getConsoleSender(), "lp user ${user.name} perm set oregen.p3")
+                        addon.server.dispatchCommand(Bukkit.getConsoleSender(), "lp user ${user.name} perm set prestige.3.new")
+                        addon.server.dispatchCommand(Bukkit.getConsoleSender(), "lp user ${user.name} perm set enchantgui.enchant")
+                        addon.server.dispatchCommand(Bukkit.getConsoleSender(), "lp user ${user.name} perm set oregen.p3")
                         user.sendMessage("§a§l(!) §7§nGRATULUJEME!§f §aPrávě jsi odemkl §7Magický Enchant§a. §7/warp enchant")
                         user.sendMessage("§a§l(!) §7§nGRATULUJEME!§f §aPrávě jsi odemkl §7MAGIC COBBLESTONE GENERATOR T1§a.")
                     }
                     number >= 4 || number >= 5 || number >= 6 || number >= 7 || number >= 8 || number >= 9 -> {
                         if (user.hasPermission("prestige.4"))
                             return false
-                        addons.server.dispatchCommand(Bukkit.getConsoleSender(), "lp user ${user.name} perm set prestige.$number")
+                        addon.server.dispatchCommand(Bukkit.getConsoleSender(), "lp user ${user.name} perm set prestige.$number")
                         user.inventory?.addItem(ItemStack(Material.NETHER_STAR, 2))
                         user.sendMessage("§a§l(!) §7§nGRATULUJEME!§f §aZískal jsi §72x Nether Star")
                     }
                     number >= 10 -> {
                         if (user.hasPermission("prestige.10"))
                             return false
-                        addons.server.dispatchCommand(Bukkit.getConsoleSender(), "lp user ${user.name} perm set prestige.10")
-                        addons.server.dispatchCommand(Bukkit.getConsoleSender(), "lp user ${user.name} perm set deluxetags.tag.Trihard")
+                        addon.server.dispatchCommand(Bukkit.getConsoleSender(), "lp user ${user.name} perm set prestige.10")
+                        addon.server.dispatchCommand(Bukkit.getConsoleSender(), "lp user ${user.name} perm set deluxetags.tag.Trihard")
                         user.sendMessage("§a§l(!) §7§nGRATULUJEME!§f §aPrávě jsi odemkl §7Trihard Tag")
                     }
                 }

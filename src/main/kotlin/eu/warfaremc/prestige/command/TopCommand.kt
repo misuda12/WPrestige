@@ -22,7 +22,7 @@
 
 package eu.warfaremc.prestige.command
 
-import eu.warfaremc.prestige.listener.GUI
+import eu.warfaremc.prestige.ui.RankUI
 import world.bentobox.bentobox.api.addons.Addon
 import world.bentobox.bentobox.api.commands.CompositeCommand
 import world.bentobox.bentobox.api.user.User
@@ -30,7 +30,7 @@ import world.bentobox.bentobox.api.user.User
 class TopCommand(addon: Addon, parent: CompositeCommand, label: String) : CompositeCommand(addon, parent, label) {
     override fun execute(user: User?, label: String?, args: MutableList<String>?): Boolean {
         if (user != null) {
-            GUI.openParticlesMenu(user.player)
+            RankUI.openParticlesMenu(user.player)
             return true
         }
         return false
