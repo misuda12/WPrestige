@@ -45,7 +45,7 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import java.io.File
 import java.util.*
 import java.util.concurrent.TimeUnit
-import world.bentobox.bentobox.api.addons.Addon as BentoboxAddon
+import world.bentobox.bentobox.api.addons.Addon
 
 @PublishedApi
 internal lateinit var addons: PrestigeAddons
@@ -61,7 +61,7 @@ internal lateinit var configuration: FileConfiguration
 
 @PublishedApi
 internal lateinit var api: PrestigeAPI
-class PrestigeAddons : BentoboxAddon(), CoroutineScope by MainScope() {
+open class PrestigeAddons : Addon(), CoroutineScope by MainScope() {
 
     val logger by lazy { KotlinLogging.logger("WPrestiges") }
     internal val session = UUID.randomUUID().toString()

@@ -1,6 +1,8 @@
 name: WarfarePrestiges
 main: eu.warfaremc.prestige.PrestigeAddon
 version: 1.0-SNAPSHOT
-api-version: 1.16
+api-version: 1.14
+repository: "misuda12/WPrestige"
+icon: "GOLD_HELMET"
 softdepend: AOneBlock
 authors: [Mirayi_, misuda12, WattMann]
