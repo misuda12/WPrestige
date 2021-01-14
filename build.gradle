@@ -82,13 +82,8 @@ dependencies {
     // https://mvnrepository.com/artifact/org.jetbrains.exposed/exposed-dao
     compile group: 'org.jetbrains.exposed', name: 'exposed-dao', version: '0.25.1'
 
-    compileOnly 'org.projectlombok:lombok:1.18.16'
-    annotationProcessor 'org.projectlombok:lombok:1.18.16'
-
     testCompile 'org.jetbrains.kotlin:kotlin-test'
     testCompile 'org.jetbrains.kotlin:kotlin-test-junit'
-    testCompileOnly 'org.projectlombok:lombok:1.18.16'
-    testAnnotationProcessor 'org.projectlombok:lombok:1.18.16'
 }
 
 compileJava.dependsOn clean
@@ -102,7 +97,6 @@ compileKotlin {
 
 shadowJar {
     relocate "mu", "shadow.logging"
-    relocate "lombok", "shadow.lombokX"
 
     manifest {
         attributes(
