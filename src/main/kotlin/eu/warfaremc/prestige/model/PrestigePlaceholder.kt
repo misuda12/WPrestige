@@ -45,7 +45,7 @@ object PrestigePlaceholder : PlaceholderExpansion() {
     override fun onPlaceholderRequest(player: Player?, params: String): String {
         if (player == null)
             return ""
-        if (identifier == "prestige") {
+        if (params == "prestige") {
             return if (prestigeAPI.exists(player.uniqueId) && prestigeAPI.getPrestige(player.uniqueId) == 0) "0"
             else toRoman(prestigeAPI.getPrestige(player.uniqueId)) ?: ""
         }
