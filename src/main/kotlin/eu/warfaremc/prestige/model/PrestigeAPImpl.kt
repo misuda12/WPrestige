@@ -59,7 +59,7 @@ internal class PrestigeAPImpl(val prestige: eu.warfaremc.prestige.PrestigeAddon)
                     Pair(VarCharColumnType(), uniqueId),
                     Pair(IntegerColumnType(), number)
                 ))
-            statement.executeQuery()
+            statement.executeUpdate()
         }
     }
 
@@ -128,7 +128,7 @@ internal class PrestigeAPImpl(val prestige: eu.warfaremc.prestige.PrestigeAddon)
                 Pair(VarCharColumnType(), uniqueId),
                 Pair(IntegerColumnType(), number)
             ))
-            statement.executeQuery()
+            statement.executeUpdate()
         }
     }
 }
