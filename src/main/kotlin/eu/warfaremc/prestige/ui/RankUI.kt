@@ -68,6 +68,7 @@ fun openParticlesMenu(player: Player?) {
                 .map { PrestigeDAO(it[Prestiges.id], it[Prestiges.level]) }
                 .map { Pair(oneblock.islands.getIslandById(it.id), it) }
                 .filter { it.first.isPresent }
+                .filter { it.second.data >= 1}
                 .map { Pair(it.first.get(), it.second) }
                 .onEach {
                     it.second.data = (oneblock.getOneBlocksIsland(it.first).blockNumber + ((it.second.data) - 1) * 11000)
