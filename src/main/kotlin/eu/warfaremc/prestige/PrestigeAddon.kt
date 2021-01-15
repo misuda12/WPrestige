@@ -59,8 +59,10 @@ import eu.warfaremc.prestige.miscellanneous.findIslandByPlayer
 import eu.warfaremc.prestige.ui.openParticlesMenu
 import org.bukkit.Bukkit
 import org.bukkit.Material
+import org.bukkit.NamespacedKey
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
+import org.bukkit.persistence.PersistentDataType
 import org.jetbrains.annotations.NotNull
 
 @PublishedApi
@@ -219,7 +221,7 @@ class PrestigeAddon : Addon(), CoroutineScope by MainScope() {
     override fun onDisable() {  }
 
     @CommandMethod("prestige")
-    @CommandDescription("Basic seto of commands for WPrestige")
+    @CommandDescription("Basic set of commands for WPrestige")
     fun command(
         @NotNull sender: CommandSender
     ) {
@@ -239,60 +241,51 @@ class PrestigeAddon : Addon(), CoroutineScope by MainScope() {
         }
         if (api.exists(island.uniqueId)) {
             val number = api.getPrestige(island.uniqueId)
-            when {
-                number >= 2  -> {
-                    if (sender.hasPermission("prestige.2")) {
-                        sender.sendMessage("[WPrestige] No rewards for ya'")
-                        return
-                    }
-                    server.scheduler.callSyncMethod(plugin) {
-                        addon.server.dispatchCommand(Bukkit.getConsoleSender(), "lp user ${sender.name} perm set prestige.2")
-                        addon.server.dispatchCommand(Bukkit.getConsoleSender(), "lp user ${sender.name} perm set cmi.command.warp.pvp")
-                    }
-                    sender.sendMessage("§a§l(!) §7§nGRATULUJEME!§f §aPrávě jsi odemkl §7/warp pvp")
-                    return
+            var persistent =
+                sender.persistentDataContainer.get(NamespacedKey(plugin, "prestige"), PersistentDataType.INTEGER)
+            sender.persistentDataContainer.set(NamespacedKey(plugin, "prestige"), PersistentDataType.INTEGER, number)
+            if (persistent == null)
+                persistent = number
+            if (persistent > 2 || persistent > 10) {
+                sender.sendMessage("[WPrestiges] No rewards for ya'")
+                return
+            }
+            takeIf { persistent == 2 }?.apply {
+                sender.sendMessage("§a§l(!) §7§nGRATULUJEME!§f §aPrávě jsi odemkl §7/warp pvp")
+                server.scheduler.callSyncMethod(plugin) {
+                    addon.server.dispatchCommand(
+                        Bukkit.getConsoleSender(),
+                        "lp user ${sender.name} perm set cmi.command.warp.pvp"
+                    )
                 }
-                number >= 3  -> {
-                    if (sender.hasPermission("prestige.3.new")) {
-                        sender.sendMessage("[WPrestige] No rewards for ya'")
-                        return
-                    }
-                    server.scheduler.callSyncMethod(plugin) {
-                        addon.server.dispatchCommand(Bukkit.getConsoleSender(), "lp user ${sender.name} perm set prestige.3.new")
-                        addon.server.dispatchCommand(Bukkit.getConsoleSender(), "lp user ${sender.name} perm set enchantgui.enchant")
-                        addon.server.dispatchCommand(Bukkit.getConsoleSender(), "lp user ${sender.name} perm set oregen.p3")
-                    }
-                    sender.sendMessage("§a§l(!) §7§nGRATULUJEME!§f §aPrávě jsi odemkl §7Magický Enchant§a. §7/warp enchant")
-                    sender.sendMessage("§a§l(!) §7§nGRATULUJEME!§f §aPrávě jsi odemkl §7MAGIC COBBLESTONE GENERATOR T1§a.")
-                    return
+            }
+            takeIf { persistent == 3 }?.apply {
+                sender.sendMessage("§a§l(!) §7§nGRATULUJEME!§f §aPrávě jsi odemkl §7Magický Enchant§a. §7/warp enchant")
+                sender.sendMessage("§a§l(!) §7§nGRATULUJEME!§f §aPrávě jsi odemkl §7MAGIC COBBLESTONE GENERATOR T1§a.")
+                server.scheduler.callSyncMethod(plugin) {
+                    addon.server.dispatchCommand(
+                        Bukkit.getConsoleSender(),
+                        "lp user ${sender.name} perm set enchantgui.enchant"
+                    )
+                    addon.server.dispatchCommand(Bukkit.getConsoleSender(), "lp user ${sender.name} perm set oregen.p3")
                 }
-                number >= 4 || number >= 5 || number >= 6 || number >= 7 || number >= 8 || number >= 9 -> {
-                    if (sender.hasPermission("prestige.4")) {
-                        sender.sendMessage("[WPrestige] No rewards for ya'")
-                        return
-                    }
-                    server.scheduler.callSyncMethod(plugin) {
-                        addon.server.dispatchCommand(Bukkit.getConsoleSender(), "lp user ${sender.name} perm set prestige.$number")
-                        sender.inventory.addItem(ItemStack(Material.NETHER_STAR, 2))
-                    }
-                    sender.sendMessage("§a§l(!) §7§nGRATULUJEME!§f §aZískal jsi §72x Nether Star")
-                    return
+            }
+            takeIf { persistent in 4..9 }?.apply {
+                sender.sendMessage("§a§l(!) §7§nGRATULUJEME!§f §aZískal jsi §72x Nether Star")
+                server.scheduler.callSyncMethod(plugin) {
+                    sender.inventory.addItem(ItemStack(Material.NETHER_STAR, 2))
                 }
-                number >= 10 -> {
-                    if (sender.hasPermission("prestige.10")) {
-                        sender.sendMessage("[WPrestige] No rewards for ya'")
-                        return
-                    }
-                    server.scheduler.callSyncMethod(plugin) {
-                        addon.server.dispatchCommand(Bukkit.getConsoleSender(), "lp user ${sender.name} perm set prestige.10")
-                        addon.server.dispatchCommand(Bukkit.getConsoleSender(), "lp user ${sender.name} perm set deluxetags.tag.Trihard")
-                    }
-                    sender.sendMessage("§a§l(!) §7§nGRATULUJEME!§f §aPrávě jsi odemkl §7Trihard Tag")
-                    return
+            }
+            takeIf { persistent == 10 }?.apply {
+                sender.sendMessage("§a§l(!) §7§nGRATULUJEME!§f §aPrávě jsi odemkl §7Trihard Tag")
+                server.scheduler.callSyncMethod(plugin) {
+                    addon.server.dispatchCommand(
+                        Bukkit.getConsoleSender(),
+                        "lp user ${sender.name} perm set deluxetags.tag.Trihard"
+                    )
                 }
             }
         }
-        sender.sendMessage("[WPrestige] No rewards for ya'")
     }
 
     @CommandMethod("prestige set <player> <number>", requiredSender = CommandSender::class)
