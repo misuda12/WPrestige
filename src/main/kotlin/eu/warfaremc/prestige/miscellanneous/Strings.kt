@@ -22,7 +22,7 @@
 
 package eu.warfaremc.prestige.miscellanneous
 
-fun toRoman(number: Int): String? {
+fun toRoman(number: Int): String {
     return if(number < 1)
         number.toString()
     else

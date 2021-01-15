@@ -98,7 +98,9 @@ compileJava.dependsOn clean
 compileKotlin {
     kotlinOptions.freeCompilerArgs += "-Xinline-classes"
     kotlinOptions {
-        jvmTarget = sourceCompatibility
+        jvmTarget = sourceCompatibility// https://mvnrepository.com/artifact/org.projectlombok/lombok
+        providedCompile group: 'org.projectlombok', name: 'lombok', version: '1.18.16'
+
     }
 }
 
