@@ -14,7 +14,7 @@ Minecraft BentoBox addon written in mixed Kotlin 1.4.10 and Java 1.11. This addo
 /prestige help                      - Help command obviously ?
 /prestige claim                     - (wp.claim) Claims your rewards if present
 /prestige set <player> <int:number> - (wp.admin.set) Sets prestige number
-/prestige top                       - (wf.top) Shows top islands by block broken ammount
+/prestige top                       - (wp.top) Shows top islands by block broken ammount
 ```
 
 ## API Usage

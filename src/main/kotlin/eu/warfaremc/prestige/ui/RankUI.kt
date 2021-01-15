@@ -70,7 +70,7 @@ fun openParticlesMenu(player: Player?) {
                 .filter { it.first.isPresent }
                 .map { Pair(it.first.get(), it.second) }
                 .onEach {
-                    it.second.data = oneblock.getOneBlocksIsland(it.first).blockNumber + ((it.second.data) - 1) * 11000
+                    it.second.data = (oneblock.getOneBlocksIsland(it.first).blockNumber + ((it.second.data) - 1) * 11000)
                 }
                 .sortedByDescending { it.second.data }
                 .toList()
