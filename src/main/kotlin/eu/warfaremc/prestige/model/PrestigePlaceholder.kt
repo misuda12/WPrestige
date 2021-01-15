@@ -45,7 +45,7 @@ object PrestigePlaceholder : PlaceholderExpansion() {
         if (params == "prestige") {
             val island = findIslandByPlayer(player.uniqueId) ?: return  "I"
             val number = api.getPrestige(island.uniqueId)
-            return toRoman(number) ?: "I"
+            return toRoman(number)
         }
         return "I"
     }

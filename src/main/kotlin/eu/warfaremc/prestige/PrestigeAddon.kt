@@ -228,28 +228,71 @@ class PrestigeAddon : Addon(), CoroutineScope by MainScope() {
         addon.commandHelp.queryCommands("", sender)
     }
 
+    @CommandMethod("prestige reset <player>")
+    @CommandDescription("Used to reset player's prestige & rewards")
+    @CommandPermission("wp.reset")
+    fun commandReset(
+        sender: Player,
+        @NotNull @Argument("player", description = "Name of an online player, to whom this will be applied") player: String
+    ) {
+        val target = Bukkit.getPlayer(player) ?: return
+        val island = findIslandByPlayer(target.uniqueId);
+
+        if(island == null)
+            sender.sendMessage("[WPrestige] Player is not a member of any island, resetting only rewards")
+         else
+            api.setPrestige(island.uniqueId, 0).also {
+                sender.sendMessage("[WPrestige] Reset prestige for player ${target.name}")
+            }
+
+        target.persistentDataContainer.set(NamespacedKey(plugin, "prestige"), PersistentDataType.INTEGER, 0);
+
+        sender.sendMessage("[WPrestige] Reset rewards for player ${target.name}")
+    }
+
+
     @CommandMethod("prestige claim")
     @CommandDescription("Claims island reward for prestige level")
     @CommandPermission("wp.claim")
-    fun commandGet(
+    fun commandClaim(
         @NotNull sender: Player,
     ) {
         val island = findIslandByPlayer(sender.uniqueId)
         if(island == null) {
-            sender.sendMessage("[WPrestige] Player '${sender.name}' is not not apart of any island")
+            sender.sendMessage("[WPrestige] Player '${sender.name}' is not not a part of any island")
             return
         }
         if (api.exists(island.uniqueId)) {
             val number = api.getPrestige(island.uniqueId)
+
             var persistent =
                 sender.persistentDataContainer.get(NamespacedKey(plugin, "prestige"), PersistentDataType.INTEGER)
-            sender.persistentDataContainer.set(NamespacedKey(plugin, "prestige"), PersistentDataType.INTEGER, number)
-            if (persistent == null)
+
+            var claimed =
+                sender.persistentDataContainer.get(NamespacedKey(plugin, "claimed"), PersistentDataType.INTEGER)
+
+            if (persistent == null || claimed == null) {
+                // Sync prestige in case a reward record is missing
                 persistent = number
-            if (persistent > 2 || persistent > 10) {
-                sender.sendMessage("[WPrestiges] No rewards for ya'")
+                claimed = 0
+            }
+
+            if(number > persistent) {
+                // Sync prestige & reward only if prestige is larger than reward, must be this way to stop possible prestige reward duping using island reset
+                sender.persistentDataContainer.set(NamespacedKey(plugin, "prestige"), PersistentDataType.INTEGER, number)
+                sender.persistentDataContainer.set(NamespacedKey(plugin, "claimed"), PersistentDataType.INTEGER, 0)
+
+                persistent = number;
+                claimed = 0;
+            }
+
+            if (persistent < 2 || persistent > 10 || claimed > 0) {
+                sender.sendMessage("§4§l(!) §bŽádné odměny k vyzvednutí!")
                 return
             }
+
+            sender.persistentDataContainer.set(NamespacedKey(plugin, "claimed"), PersistentDataType.INTEGER, 1) // set status to already claimed
+
             takeIf { persistent == 2 }?.apply {
                 sender.sendMessage("§a§l(!) §7§nGRATULUJEME!§f §aPrávě jsi odemkl §7/warp pvp")
                 server.scheduler.callSyncMethod(plugin) {
@@ -257,6 +300,7 @@ class PrestigeAddon : Addon(), CoroutineScope by MainScope() {
                         Bukkit.getConsoleSender(),
                         "lp user ${sender.name} perm set cmi.command.warp.pvp"
                     )
+
                 }
             }
             takeIf { persistent == 3 }?.apply {

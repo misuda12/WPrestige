@@ -49,7 +49,7 @@ internal class PrestigeAPImpl(val prestige: eu.warfaremc.prestige.PrestigeAddon)
         if (uniqueId.isNullOrEmpty())
             return
         val entry = kguava.getIfPresent(uniqueId)
-        if (entry != null && entry as Int == number || number < 1)
+        if (entry != null && entry as Int == number || number < 0)
             return
         kguava.put(uniqueId, number)
         transaction(prestige.database) {
