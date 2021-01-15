@@ -41,6 +41,6 @@ fun findNameByIsland(island: Island?): String {
         return "unknown"
     if (island.name != null)
         return island.name!!
-    val player = island.owner?.let { addon.server.getPlayer(it) } ?: return "unknown"
-    return player.name
+    val player = island.owner?.let { addon.server.getOfflinePlayer(it) } ?: return "unknown"
+    return player.name ?: "unknown"
 }
