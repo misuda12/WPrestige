@@ -127,7 +127,7 @@ operator fun Inventory.minusAssign(material: Material) {
     this.remove(material)
 }
 
-fun Inventory.openTo(player: Player) = addon.server.scheduler.callSyncMethod(addon.plugin, { player.openInventory(this) })
+fun Inventory.openTo(player: Player) = player.openInventory(this)
 
 fun Inventory.row(index: Int): IntRange {
     checkBounds(index, 0 until rows, "Row")

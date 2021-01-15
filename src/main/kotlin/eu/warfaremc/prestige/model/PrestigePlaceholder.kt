@@ -31,7 +31,7 @@ import org.bukkit.entity.Player
 
 object PrestigePlaceholder : PlaceholderExpansion() {
     override fun getIdentifier(): String
-            = "wf"
+            = "wp"
 
     override fun getAuthor(): String
             = addon.description.authors.joinToString(", ")
@@ -41,12 +41,12 @@ object PrestigePlaceholder : PlaceholderExpansion() {
 
     override fun onPlaceholderRequest(player: Player?, params: String): String {
         if (player == null)
-            return "0"
+            return "I"
         if (params == "prestige") {
-            val island = findIslandByPlayer(player.uniqueId) ?: return  "0"
+            val island = findIslandByPlayer(player.uniqueId) ?: return  "I"
             val number = api.getPrestige(island.uniqueId)
-            return toRoman(number) ?: "0"
+            return toRoman(number) ?: "I"
         }
-        return "0"
+        return "I"
     }
 }

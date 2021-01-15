@@ -37,3 +37,8 @@ data class Prestige(
     val id: String,
     val data: Int = 0
 ) : Serializable
+
+data class PrestigeDAO(
+    val id: String,
+    var data: Int = 0
+) : Serializable

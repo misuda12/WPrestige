@@ -24,8 +24,10 @@ package eu.warfaremc.prestige.ui
 
 import eu.warfaremc.prestige.addon
 import eu.warfaremc.prestige.api
+import eu.warfaremc.prestige.miscellanneous.findNameByIsland
 import eu.warfaremc.prestige.miscellanneous.toRoman
-import eu.warfaremc.prestige.model.Prestige
+import eu.warfaremc.prestige.model.PrestigeDAO
+import eu.warfaremc.prestige.model.Prestiges
 import eu.warfaremc.prestige.model.extension.*
 import eu.warfaremc.prestige.oneblock
 import org.bukkit.Material
@@ -35,9 +37,10 @@ import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.inventory.meta.ItemMeta
+import org.jetbrains.exposed.sql.SortOrder
+import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import world.bentobox.bentobox.database.objects.Island
-import java.util.*
 
 class RankUI : Listener {
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -57,23 +60,25 @@ fun openParticlesMenu(player: Player?) {
                 name = " "
             }
         }
-        var list: List<Prestige> = emptyList()
-        transaction(addon.database) {
-            list = api.all
-        }
-        list.sortedBy { it.data }
         all.forEach { this[it] = border }
+        var list: List<Pair<Island, PrestigeDAO>> = arrayListOf()
+        transaction(addon.database) {
+            list = Prestiges.selectAll().orderBy(Prestiges.id, SortOrder.DESC)
+                .asSequence()
+                .map { PrestigeDAO(it[Prestiges.id], it[Prestiges.level]) }
+                .map { Pair(oneblock.islands.getIslandById(it.id), it) }
+                .filter { it.first.isPresent }
+                .map { Pair(it.first.get(), it.second) }
+                .onEach {
+                    it.second.data = oneblock.getOneBlocksIsland(it.first).blockNumber + ((it.second.data) - 1) * 11000
+                }
+                .sortedByDescending { it.second.data }
+                .toList()
+        }
         triangle.forEachIndexed { index, position ->
-            val result: Result<Triple<Island, Int, Int>> = kotlin.runCatching {
-                val entry = list[index]
-                val island = oneblock.islands.getIslandById(entry.id)
-                val blockNumber =
-                    if (entry.data > 1) oneblock.getOneBlocksIsland(island.get()).blockNumber + ((entry.data - 1) * 11000)
-                    else oneblock.getOneBlocksIsland(island.orElseThrow()).blockNumber
-                Triple(island.get(), blockNumber, entry.data)
+            val result: Result<Pair<Island, PrestigeDAO>> = kotlin.runCatching {
+                list[index]
             }
-            if (result.isFailure)
-                return@forEachIndexed
             if (result.isSuccess) {
                 val material: Material = when {
                     index == 0 -> Material.LIGHT_BLUE_STAINED_GLASS_PANE
@@ -83,14 +88,14 @@ fun openParticlesMenu(player: Player?) {
                 }
                 val item = item(material) {
                     meta<ItemMeta> {
-                        val a0 = result.getOrNull()!!.first.owner ?: return@forEachIndexed
-                        val a1 =
-                            addon.server.getOfflinePlayer(UUID.fromString(a0.toString())).name ?: "Unknown"
-                        name = "§b§l(!) §b $a1"
+                        val owner = findNameByIsland(result.getOrNull()!!.first)
+                        name = "§b§l(!) §b $owner"
                         stringLore = """
+                        
                                     §b    §b⚹ Místo: §7${index + 1}
-                                    §b    §b⚹ Vytěženo bloků: §7${result.getOrNull()!!.second}
-                                    §b    §b⚹ Prestige: §7${toRoman(result.getOrNull()!!.third)}
+                                    §b    §b⚹ Vytěženo bloků: §7${result.getOrNull()!!.second.data}
+                                    §b    §b⚹ Prestige: §7${toRoman(api.getPrestige(result.getOrNull()!!.second.id))}
+                                    
                                 """.trimIndent()
                     }
                 }
@@ -98,5 +103,7 @@ fun openParticlesMenu(player: Player?) {
             }
         }
     }
-    inventory.openTo(player)
+
+    // Escaping from Command.ASYNC to Server.SYNC_BLOCKING
+    addon.server.scheduler.callSyncMethod(addon.plugin) { inventory.openTo(player) }
 }
