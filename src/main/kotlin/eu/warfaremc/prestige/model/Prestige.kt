@@ -22,7 +22,10 @@
 
 package eu.warfaremc.prestige.model
 
+import com.google.gson.annotations.Expose
 import org.jetbrains.exposed.sql.Table
+import world.bentobox.bentobox.database.objects.DataObject
+import world.bentobox.bentobox.database.objects.Table as BBTable
 import java.io.Serializable
 
 object Prestiges : Table("t_prestiges") {
@@ -31,6 +34,23 @@ object Prestiges : Table("t_prestiges") {
     val level = integer("level").default(0)
     override val primaryKey: PrimaryKey
         get() = PrimaryKey(id, name = "PKPrestigesID")
+}
+
+@BBTable(name = "PrestigeReward")
+class PrestigeReward(@JvmField @Expose var uniqueId: String) : DataObject {
+
+    @Expose
+    var prestige: Int = 0
+
+    @Expose
+    var rewarded: Int = 0
+
+    override fun getUniqueId(): String
+        = uniqueId
+
+    override fun setUniqueId(uniqueId: String) {
+        this.uniqueId = uniqueId
+    }
 }
 
 data class Prestige(

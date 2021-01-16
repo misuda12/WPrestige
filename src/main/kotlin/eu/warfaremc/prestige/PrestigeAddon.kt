@@ -56,6 +56,7 @@ import cloud.commandframework.meta.CommandMeta
 import cloud.commandframework.arguments.parser.ParserParameters
 import cloud.commandframework.kotlin.extension.buildAndRegister
 import eu.warfaremc.prestige.miscellanneous.findIslandByPlayer
+import eu.warfaremc.prestige.model.PrestigeReward
 import eu.warfaremc.prestige.ui.openParticlesMenu
 import org.bukkit.Bukkit
 import org.bukkit.Material
@@ -64,6 +65,7 @@ import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 import org.bukkit.persistence.PersistentDataType
 import org.jetbrains.annotations.NotNull
+import world.bentobox.bentobox.database.Database as BBDatabase
 
 @PublishedApi
 internal lateinit var addon: PrestigeAddon
@@ -88,6 +90,8 @@ class PrestigeAddon : Addon(), CoroutineScope by MainScope() {
 
     val logger by lazy { KotlinLogging.logger("WPrestiges") }
     internal val session = UUID.randomUUID().toString()
+
+    lateinit var rewarded: BBDatabase<PrestigeReward>
 
     // Command stuff
     lateinit var audiences: BukkitAudiences
@@ -191,6 +195,7 @@ class PrestigeAddon : Addon(), CoroutineScope by MainScope() {
     }
     override fun onEnable() {
         oneblock = addon.plugin.addonsManager.getAddonByName<AOneBlock>("AOneBlock").get()
+        rewarded = BBDatabase(plugin, PrestigeReward::class.java)
         if (::api.isInitialized == false)
             api = PrestigeAPImpl(this)
         val fisqlResult = kotlin.runCatching {
